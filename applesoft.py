@@ -20,30 +20,35 @@ def main(infile):
     file.with_suffix('.txt').write_text('\n'.join(fixup))
     return 0
 
+def round_up(n,m):
+    return ((n//m)+1)*m
+
 def pass1(raw):
     """Convert to BASIC syntax
     Concatenate lines, skip comments, mark labels
     """
     out = []
     label = {}
+    n = 0
     for line in map(str.upper, raw):
         if not line or line.startswith('#'):
             continue
         elif line.startswith('@'):
-            label[line] = str(len(out))
+            n = round_up(n,100)
+            label[line] = str(n)
         elif line.startswith(':'):
             out[-1] += line
         else:
             if line.startswith("'"):
                 line = f'REM {line[1:]}'
-            out.append(line)
+            out.append(f'{n} {line}')
+            n += 10
     return out,label
 
 def pass2(bas,label):
     """Fixup labels"""
     for n,line in enumerate(bas):
-        fix = patLabel.sub (lambda m: label[m.group(0)], line)
-        yield f'{n} {fix}'
+        yield patLabel.sub (lambda m: label[m.group(0)], line)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1]))
