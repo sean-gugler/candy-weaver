@@ -1,0 +1,57 @@
+'Game by Sean Gugler
+dim c(15)
+
+gr
+
+w=6
+:h=8
+:x=14
+:y=4
+
+cn%=16
+:gosub @gen_palette
+
+gosub @draw_patch
+
+end
+
+
+@gen_palette
+'Generate color palette
+# arg: cn number of colors
+
+for ci=0 to cn%-1
+:c(ci)=rnd(1)*15+1
+:next
+:return
+
+
+@draw_patch
+'Draw patch
+# arg: x,y,w,h GR rect coords
+
+ci%=0
+
+for bi=0 to w+h-1
+
+color=c(ci%)
+#bi=s(i)
+gosub @draw_bar
+
+ci%=ci%+1
+:if ci%=cn% then ci%=0
+
+next bi
+
+return
+
+
+@draw_bar
+'Draw a single bar
+# arg: bi  bar number from 0 to w+h-1
+# 0..w-1 are vlin, remainder are hlin
+
+if bi<w then vlin y,y+h*2 at 1+x+bi*2
+:return
+hlin x,x+w*2 at 1+y+(bi-w)*2
+:return
