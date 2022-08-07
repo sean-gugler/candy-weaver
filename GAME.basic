@@ -10,15 +10,82 @@ gr
 
 w=6
 :h=8
-:x=14
-:y=4
+:x=4
+:y=16
 
 cn%=5
 :gosub @gen_palette
-
 gosub @draw_patch
 
+x=x+20
+:gosub @draw_game_menu
+gosub @play_game
+
 end
+
+
+#----------
+@draw_game_menu
+# arg: w,h patch size
+# use: i index
+home
+
+:print "Choose color:";
+:htab 20
+for i=0 to cn%-1
+:color=c(i)
+:vlin 37,38 at 20+i*2
+:print " ";i+1;
+:next
+print
+
+print "Draw line:"
+:htab x-h*2
+:print "(";
+for i=0 to h-1
+:if i>0 then print " ";
+print chr$(65+i);
+:next
+:print ")";
+for i=h to w+h-1
+:print " ";chr$(65+i);
+:next
+
+return
+
+#----------
+@play_game
+# use: c$ keyboard input
+# use: ci% color index
+# use: bi bar index, @draw_bar
+# use: i index
+
+wait 49152,128
+:get ch$
+ch = asc(ch$)
+
+if ch=27 then return
+:rem ESC
+
+ci%=ch-49
+:rem 1-9
+if ci%>=0 and ci%<cn% then @play_color
+
+bi=ch-65
+:rem A-Z
+if bi>=0 and bi<w+h then @play_bar
+
+goto @play_game
+:rem other
+
+
+@play_color
+color=c(ci%)
+:goto @play_game
+
+@play_bar
+gosub @draw_bar
+:goto @play_game
 
 
 #----------
