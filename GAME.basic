@@ -1,5 +1,10 @@
 'Game by Sean Gugler
 dim c(15)
+dim s(25)
+
+#gosub @test_shuffle:end
+
+
 
 gr
 
@@ -8,7 +13,7 @@ w=6
 :x=14
 :y=4
 
-cn%=16
+cn%=5
 :gosub @gen_palette
 
 gosub @draw_patch
@@ -16,42 +21,100 @@ gosub @draw_patch
 end
 
 
+#----------
+@shuffle
+# arg: sn% length of shuffled sequence [1..26]
+# use: i,j indices
+# use: t temp value
+
+for i=0 to sn%-1
+:s(i)=i
+:next
+
+for i=sn%-1 to 0 step -1
+:j=rnd(1)*i
+:t=s(i)
+:s(i)=s(j)
+:s(j)=t
+:next
+
+return
+
+#----------
 @gen_palette
 'Generate color palette
 # arg: cn number of colors
+# use: ci color index
+# use: sn%, @shuffle
+
+sn%=15
+:gosub @shuffle
 
 for ci=0 to cn%-1
-:c(ci)=rnd(1)*15+1
+#:c(ci)=rnd(1)*15+1
+:c(ci)=s(ci)+1
 :next
 :return
 
-
+#----------
 @draw_patch
 'Draw patch
 # arg: x,y,w,h GR rect coords
+# use: sn% @shuffle
+# use: ci% color index
+# use: bi bar index, @draw_bar
+# use: i index
+
+sn%=w+h
+:gosub @shuffle
 
 ci%=0
-
-for bi=0 to w+h-1
+for i=0 to w+h-1
 
 color=c(ci%)
-#bi=s(i)
+bi=s(i)
 gosub @draw_bar
 
 ci%=ci%+1
 :if ci%=cn% then ci%=0
 
-next bi
+next i
 
 return
 
-
+#----------
 @draw_bar
 'Draw a single bar
 # arg: bi  bar number from 0 to w+h-1
-# 0..w-1 are vlin, remainder are hlin
+# 0..h-1 are hlin, remainder are vlin
 
-if bi<w then vlin y,y+h*2 at 1+x+bi*2
+if bi<h then hlin x,x+w*2 at 1+y+bi*2
 :return
-hlin x,x+w*2 at 1+y+(bi-w)*2
+vlin y,y+h*2 at 1+x+(bi-h)*2
+:return
+
+
+
+#----------
+@test_shuffle
+sn%=4
+gosub @shuffle:gosub @print_shuffle
+gosub @shuffle:gosub @print_shuffle
+gosub @shuffle:gosub @print_shuffle
+gosub @shuffle:gosub @print_shuffle
+sn%=16
+gosub @shuffle:gosub @print_shuffle
+gosub @shuffle:gosub @print_shuffle
+gosub @shuffle:gosub @print_shuffle
+gosub @shuffle:gosub @print_shuffle
+sn%=1
+gosub @shuffle:gosub @print_shuffle
+#sn%=0
+#gosub @shuffle:gosub @print_shuffle
+return
+@print_shuffle
+for i=0 to sn%-1
+:print(s(i));" ";
+:next
+:print
 :return
