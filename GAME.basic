@@ -19,6 +19,10 @@ gosub @draw_patch
 
 x=x+20
 :gosub @draw_game_menu
+cp%=1
+:ci%=0
+:gosub @select_color
+
 gosub @play_game
 
 end
@@ -86,6 +90,26 @@ for i=h to w+h-1
 return
 
 #----------
+@select_color
+'--- Activate a color
+# arg: ci% color index
+# keep: cp% previous color index
+
+vtab 21
+
+:htab 21+ci%*2
+:inverse
+:print ci%+1;
+
+:htab 21+cp%*2
+:normal
+:print cp%+1;
+
+:color=c(ci%)
+cp%=ci%
+:return
+
+#----------
 @play_game
 '--- Main game loop
 # use: c$ keyboard input
@@ -113,7 +137,7 @@ goto @play_game
 
 @play_color
 '- choose color
-color=c(ci%)
+gosub @select_color
 :goto @play_game
 
 @play_bar
