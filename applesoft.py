@@ -17,7 +17,7 @@ def main(infile):
     lines = file.read_text().split('\n')
     caps,labels = pass1(lines)
     fixup = pass2(caps,labels)
-    file.with_suffix('.txt').write_text('\n'.join(fixup))
+    file.with_suffix('.txt').write_text('\n'.join(fixup)+'\n')
     return 0
 
 def round_up(n,m):
