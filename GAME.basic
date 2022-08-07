@@ -1,16 +1,9 @@
 'Game by Sean Gugler
-dim c(15)
-dim s(25)
-
-dim ro(24):rem gr mem addr by row
-for n=0 to 7
-:for m=0 to 2
-:ro(n+8*m)=1024+128*n+40*m
-:next m
-:next n
 
 #gosub @test_shuffle:end
 
+gosub @init_vars
+gosub @welcome
 
 gr
 #gosub @test_row:end
@@ -30,6 +23,37 @@ gosub @play_game
 
 end
 
+
+#----------
+@welcome
+'--- Welcome
+text
+:home
+:print "Weaver, by Sean Gugler"
+print
+:print "Create a weave on the right"
+print "to match the weave on the left"
+print
+:print "Good luck! ";
+
+get ch$
+i=rnd(-1*(peek(78)+256*peek(79))):rem seed from human reaction time
+return
+
+#----------
+@init_vars
+'--- Initialize variables
+dim c(15)
+dim s(25)
+
+dim ro(24):rem gr mem addr by row
+for n=0 to 7
+:for m=0 to 2
+:ro(n+8*m)=1024+128*n+40*m
+:next m
+:next n
+
+return
 
 #----------
 @draw_game_menu
