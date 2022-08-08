@@ -95,6 +95,7 @@ return
 # arg: ci% color index
 # keep: cp% previous color index
 
+if ci%=cp% then return
 vtab 21
 
 :htab 21+ci%*2
