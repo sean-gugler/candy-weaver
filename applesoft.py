@@ -10,7 +10,7 @@ import sys
 import re
 from pathlib import Path
 
-patLabel = re.compile(r'@\w+')
+patLabel = re.compile(r'@+\w+')
 
 def main(infile):
     file = Path(infile)
@@ -34,7 +34,8 @@ def pass1(raw):
         if not line or line.startswith('#'):
             continue
         elif line.startswith('@'):
-            n = round_up(n,100)
+            if line[1] != '@':
+                n = round_up(n,100)
             label[line] = str(n)
         elif line.startswith(':'):
             out[-1] += line

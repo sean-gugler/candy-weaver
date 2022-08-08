@@ -127,21 +127,21 @@ if ch=27 then return
 
 ci%=ch-49
 :rem 1-9
-if ci%>=0 and ci%<cn% then @play_color
+if ci%>=0 and ci%<cn% then @@play_color
 
 bi=ch-65
 :rem A-Z
-if bi>=0 and bi<w+h then @play_bar
+if bi>=0 and bi<w+h then @@play_bar
 
 goto @play_game
 :rem other
 
-@play_color
+@@play_color
 '- choose color
 gosub @select_color
 :goto @play_game
 
-@play_bar
+@@play_bar
 '- choose line
 gosub @draw_bar
 gosub @check_match
