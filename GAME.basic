@@ -8,6 +8,9 @@ gosub @welcome
 gr
 #gosub @test_row:end
 
+# max values allowed:
+# w=9, h=9, cn%=9
+
 w=6
 :h=8
 :x=4
@@ -202,13 +205,21 @@ return
 # arg: cn number of colors
 # use: ci color index
 # use: sn%, @shuffle
+# use: i shuffle index, to skip colors that are hard to distinguish
+# use: t temp value
 
-sn%=15
+sn%=16
 :gosub @shuffle
 
-for ci=0 to cn%-1
-#:c(ci)=rnd(1)*15+1
-:c(ci)=s(ci)+1
+i=0
+:for ci=0 to cn%-1
+
+@@reject_color
+t=s(i)
+:i=i+1
+:if t=0 or t=3 or t=5 or t=10 then @@reject_color
+
+c(ci)=t
 :next
 :return
 
