@@ -17,9 +17,9 @@ gosub @init_vars
 gosub @welcome
 
 # max values allowed:
-# w=9, h=9, cn%=9
+# w=8, h=9, cn%=9
 
-data 8 , 3,3,3 , 4,4,3 , 5,5,3 , 3,3,6 , 4,4,6 , 6,6,4 , 8,8,2 , 9,9,9
+data 11 , 3,3,3 , 4,4,3 , 5,5,3 , 6,8,3 , 8,3,5 , 3,8,5 , 3,3,6 , 4,4,6 , 6,6,4 , 8,9,2 , 8,9,9
 
 read n
 for r=1 to n
@@ -34,7 +34,7 @@ end
 @setup_goal
 
 read w,h,cn%
-:x=10-w
+:x=9-w
 :y=20-h
 
 gr
@@ -121,7 +121,7 @@ vtab 24
 w=3
 :h=3
 :cn%=3
-x=10-w
+:x=9-w
 :y=20-h
 
 gr
@@ -302,13 +302,13 @@ cp%=ci%
 # arg: bi bar index
 # keep: bp previous bar index
 
-if bi=bp then return
-
 color=0
 :ba=bp
 :gosub @draw_axis
 
-color=15
+gosub @draw_border
+
+color=c(ci%)
 :ba=bi
 :gosub @draw_axis
 
@@ -380,6 +380,7 @@ goto @play_game
 '- choose color
 ci%=t
 :gosub @select_color
+:gosub @select_stripe
 :goto @play_game
 
 @@play_bar
@@ -533,9 +534,9 @@ hlin x,x+w*2 at 1+y+(bi-w)*2
 # arg: ba  bar axis number from 0 to w+h-1
 # use: t temporary value
 
-if ba<w then vlin y-5,y-3 at 1+x+ba*2
+if ba<w then vlin y-3,y-1 at 1+x+ba*2
 :return
-t=x+w*2+3
+t=x+w*2+1
 :hlin t,t+1 at 1+y+(ba-w)*2
 :return
 
