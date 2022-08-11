@@ -42,13 +42,22 @@ gr
 #gosub @test_row:end
 
 :gosub @gen_palette
-gosub @draw_patch
+:gosub @draw_border
+:gosub @draw_patch
 
 x=x+20
-:gosub @draw_game_menu
+:gosub @draw_border
+home
+:print "Available flavors:"
+:gosub @draw_color_palette
 cp%=1
 :ci%=0
 :gosub @select_color
+
+bp=1
+:bi=0
+:gosub @select_stripe
+print "Left/Right to aim, Space to lay stripe"
 
 return
 
@@ -101,21 +110,37 @@ for n=0 to 7
 return
 
 #----------
-@draw_game_menu
-'--- Draw game menu
-# arg: w,h patch size
-# use: i index
-home
+@draw_border
+'--- Draw play area border
+# arg: x,y,w,h GR rect coords
 
-:print "Choose a flavor:";
+color=15
+hlin x-1,x+w*2+1 at y-1
+hlin x-1,x+w*2+1 at y+h*2+1
+vlin y-1,y+h*2+1 at x-1
+vlin y-1,y+h*2+1 at x+w*2+1
+:return
+
+#----------
+@draw_color_palette
+'--- Draw color palette
+# arg: cn% number of colors
+# arg: c() array of colors
+# use: i index
+
+vtab 21
 :htab 20
+
 for i=0 to cn%-1
 :color=c(i)
 :vlin 37,38 at 20+i*2
 :print " ";i+1;
 :next
-print
 
+print
+:return
+
+# arg: w,h patch size
 print "Lay a candy stripe:"
 :htab x-h*2
 :print "(";
@@ -132,7 +157,7 @@ return
 
 #----------
 @select_color
-'--- Activate a color
+'--- Show selected color
 # arg: ci% color index
 # keep: cp% previous color index
 
@@ -147,9 +172,40 @@ vtab 21
 :normal
 :print cp%+1;
 
-:color=c(ci%)
 cp%=ci%
+:print
 :return
+
+#----------
+@select_stripe
+'--- Show selected stripe
+# arg: bi bar index
+# keep: bp previous bar index
+
+if bi=bp then return
+
+color=0
+:ba=bp
+:gosub @draw_axis
+
+color=15
+:ba=bi
+:gosub @draw_axis
+
+bp=bi
+:return
+
+#----------
+@input_key
+'--- Input key
+# Does not show a flashing cursor.
+# return: ch$ string of key that was pressed
+# return: ch apple-ascii value of that key
+
+wait 49152,128
+:get ch$
+:ch = asc(ch$)
+return
 
 #----------
 @play_game
@@ -157,47 +213,80 @@ cp%=ci%
 # use: c$ keyboard input
 # use: ci% color index
 # use: bi bar index, @draw_bar
-# use: i index
+# use: t temporary value
 
-wait 49152,128
-:get ch$
-ch = asc(ch$)
+gosub @input_key
 
 if ch=83 then return
 :rem debug [S]kip
 
-ci%=ch-49
-:rem 1-9
-if ci%>=0 and ci%<cn% then @@play_color
+if ch=8 then @@bar_left
+:rem left
 
-bi=ch-65
+if ch=21 then @@bar_right
+:rem right
+
+if ch=32 then @@play_bar_current
+:rem space
+
+t=ch-49
+:rem 1-9
+if t>=0 and t<cn% then @@play_color
+
+t=ch-65
 :rem A-Z
-if bi>=0 and bi<w+h then @@play_bar
+if t>=0 and t<w+h then @@play_bar
 
 goto @play_game
 :rem other
 
+@@bar_left
+bi=bi-1
+:if bi<0 then bi=w+h-1
+gosub @select_stripe
+:goto @play_game
+
+@@bar_right
+bi=bi+1
+:if bi=w+h then bi=0
+gosub @select_stripe
+:goto @play_game
+
 @@play_color
 '- choose color
-gosub @select_color
+ci%=t
+:gosub @select_color
 :goto @play_game
 
 @@play_bar
 '- choose line
-gosub @draw_bar
-gosub @check_match
-if ma% then print ma%;" more      ";
+bi=t
+
+@@play_bar_current
+gosub @select_stripe
+:gosub @draw_bar
+:gosub @check_match
+if ma% then print ma%;" mismatch  ";
 :goto @play_game
 
-print "Confection complete! Yum!";
+t=rnd(1)*3
+if t<1 then print "A perfect match!";
+:goto @@round_over
+if t<2 then print "Delicious!";
+:goto @@round_over
+print "Completed. Yum!";
+@@round_over
+gosub @key_continue
 return
 
 #----------
 @check_match
 '--- Check for match
-# arg: bi bar number
+# arg: x,y,w,h GR rect coords
+# arg: ro() array of memory address for each row start
 # return: ma% number remaining
-# use: n% match count at this bi
+# use: i,j indices
+# use: y2 temp var
 
 vtab 24
 :htab 1
@@ -232,7 +321,7 @@ return
 '--- Create a shuffle 
 # arg: sn% length of shuffled sequence [1..26]
 # use: i,j indices
-# use: t temp value
+# use: t temporary value
 
 for i=0 to sn%-1
 :s(i)=i
@@ -254,9 +343,9 @@ return
 # use: ci color index
 # use: sn%, @shuffle
 # use: i shuffle index, to skip colors that are hard to distinguish
-# use: t temp value
+# use: t temporary value
 
-sn%=16
+sn%=15
 :gosub @shuffle
 
 i=0
@@ -286,7 +375,6 @@ sn%=w+h
 ci%=0
 for i=0 to w+h-1
 
-color=c(ci%)
 :bi=s(i)
 :gosub @draw_bar
 
@@ -301,12 +389,32 @@ return
 @draw_bar
 '--- Draw a single bar
 # arg: bi  bar number from 0 to w+h-1
-# 0..h-1 are hlin, remainder are vlin
+# arg: ci%  color index
+# 0..w-1 are vlin, remainder are hlin
 
-if bi<h then hlin x,x+w*2 at 1+y+bi*2
+color=c(ci%)
+if bi<w then vlin y,y+h*2 at 1+x+bi*2
 :return
-vlin y,y+h*2 at 1+x+(bi-h)*2
+hlin x,x+w*2 at 1+y+(bi-w)*2
 :return
+
+#if bi<h then hlin x,x+w*2 at 1+y+bi*2
+#:return
+#vlin y,y+h*2 at 1+x+(bi-h)*2
+#:return
+
+#----------
+@draw_axis
+'--- Draw axis indicator
+# arg: ba  bar axis number from 0 to w+h-1
+# use: t temporary value
+
+if ba<w then vlin y-5,y-3 at 1+x+ba*2
+:return
+t=x+w*2+3
+:hlin t,t+1 at 1+y+(ba-w)*2
+:return
+
 
 
 {unit_test
