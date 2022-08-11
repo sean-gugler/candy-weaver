@@ -209,13 +209,19 @@ if peek(49152)>=128 then get ch$
 if ch$="P" then return
 
 if i<>20 then @@demo_color
-ci%=int(rnd(1)*cn%)
+@@demo_new_color
+t=int(rnd(1)*cn%)
+:if t=ci% then @@demo_new_color
+ci%=t
 :gosub @select_color
 :gosub @select_stripe
 @@demo_color
 
 if i<>40 then @@demo_aim
-bi=int(rnd(1)*(w+h))
+@@demo_new_aim
+t=int(rnd(1)*(w+h))
+:if t=bi then @@demo_new_aim
+bi=t
 :gosub @select_stripe
 @@demo_aim
 
