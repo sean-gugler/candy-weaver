@@ -395,14 +395,16 @@ if ma% then print ma%;" mismatch  ";
 :goto @play_game
 
 t=rnd(1)*3
+:inverse
 if t<1 then print "A perfect match!";
 :goto @@round_over
 if t<2 then print "Delicious!";
 :goto @@round_over
-print "Completed. Yum!";
+print "Completed! (Yum)";
 @@round_over
-gosub @key_continue
-return
+normal
+:gosub @key_continue
+:return
 
 #----------
 @check_match
