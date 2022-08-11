@@ -316,16 +316,23 @@ cp%=ci%
 :return
 
 #----------
-@select_stripe
-'--- Show selected stripe
-# arg: bi bar index
-# keep: bp previous bar index
+@clear_stripe
+'--- Clear stripe indictor
 
 color=0
 :ba=bp
 :gosub @draw_axis
 
 gosub @draw_border
+:return
+
+#----------
+@select_stripe
+'--- Show selected stripe
+# arg: bi bar index
+# keep: bp previous bar index
+
+gosub @clear_stripe
 
 color=c(ci%)
 :ba=bi
@@ -413,6 +420,7 @@ gosub @select_stripe
 if ma% then print "progress: ";ma%;" to go ";
 :goto @play_game
 
+gosub @clear_stripe
 t=rnd(1)*3
 :inverse
 if t<1 then print "A perfect match!";
