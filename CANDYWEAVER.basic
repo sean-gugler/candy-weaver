@@ -1,4 +1,12 @@
-'Game by Sean Gugler
+'Copyright 2022 by Sean Gugler
+'licensed under CC BY-NC-SA 4.0
+
+t1$="Candy Weaver"
+t2$="v0.0.3 2022-08-10"
+t3$="by Sean Gugler"
+
+def fn center(s) 20-len(s)/2
+
 
 #gosub @test_shuffle:end
 
@@ -36,12 +44,15 @@ end
 '--- Welcome
 text
 :home
-:print "Weaver, by Sean Gugler"
+htab center(t1$):print t1$
 print
-:print "Create a weave on the right"
-print "to match the weave on the left"
+htab center(t2$):print t2$
+htab center(t3$):print t3$
 print
-:print "Good luck! ";
+print "Weave your candy stripes on the right"
+print "to match the pattern on the left."
+print
+print "Roll up your sleeves; here we go! ";
 
 get ch$
 i=rnd(-1*(peek(78)+256*peek(79))):rem seed from human reaction time
@@ -69,7 +80,7 @@ return
 # use: i index
 home
 
-:print "Choose color:";
+:print "Choose a flavor:";
 :htab 20
 for i=0 to cn%-1
 :color=c(i)
@@ -78,7 +89,7 @@ for i=0 to cn%-1
 :next
 print
 
-print "Draw line:"
+print "Lay a candy stripe:"
 :htab x-h*2
 :print "(";
 for i=0 to h-1
@@ -151,7 +162,7 @@ gosub @check_match
 if ma% then print ma%;" more    ";
 :goto @play_game
 
-print "complete match!";
+print "Confection complete! Yum!";
 return
 
 #----------
@@ -163,7 +174,7 @@ return
 
 vtab 24
 :htab 1
-:print "Checking...";
+:print "Comparing...";
 :htab 1
 
 ma%=0
