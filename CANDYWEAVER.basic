@@ -5,7 +5,7 @@
 'licensed under CC BY-NC-SA 4.0
 
 t1$="Candy Weaver"
-t2$="v0.1.0 2022-08-11"
+t2$="v0.1.1 2022-08-11"
 t3$="by Sean Gugler"
 t4$="-----------------"
 
@@ -155,7 +155,7 @@ print "match the pattern."
 gosub @key_continue
 
 home
-print "First, select"
+print "First: select"
 gosub @draw_color_palette
 print "a flavor of candy"
 print "by pressing its number";
@@ -164,31 +164,33 @@ print "by pressing its number";
 gosub @input_key
 :ci%=ch-49
 :if ci%<0 or ci%>=cn% then @@tutorial_color
+cp%=not(ci%-1)+1
 
 home
 :gosub @draw_color_palette
-:cp%=not(ci%-1)+1
 :gosub @select_color
-print "Next, use left and right arrows to"
-print "aim the candy hose. Try it out!"
-t=0
-:bi=2
+print "Next: press the right arrow several"
+print "times to move the candy hose."
+bi=0
 :gosub @select_stripe
 
 @@tutorial_aim
 gosub @input_key
+:if ch<>21 then @@tutorial_aim
+gosub @aim_right
+:if bi<>0 then @@tutorial_aim
 
-if ch=8 then t=t+1
-:gosub @aim_left
-:rem left
+home
+:gosub @draw_color_palette
+:gosub @select_color
+print "Use left and right arrows to aim, then"
+print "Press space to lay down a candy stripe."
 
-if ch=21 then t=t+1
-:gosub @aim_right
-:rem right
-
-if t<5 then @@tutorial_aim
-if t=5 then print "Press space to lay down a candy stripe.";
-if ch<>32 then @@tutorial_aim
+@@tutorial_stripe
+gosub @input_key
+if ch=8 then gosub @aim_left
+if ch=21 then gosub @aim_right
+if ch<>32 then @@tutorial_stripe
 :rem space
 gosub @draw_bar
 
@@ -196,22 +198,33 @@ home
 print "Continue laying"
 print "candy stripes until"
 print "the pattern matches!"
-vtab 22:htab 30:print"Press"
-vtab 23:htab 30:print"[P]lay"
-vtab 24:htab 30:print"[M]enu";
+gosub @draw_color_palette
+:gosub @select_color
+vtab 22:htab 30:print"Press [P]"
+vtab 23:htab 30:print"to play";
 
 @@tutorial_demo
-if peek(49152)>=128 then return
+for i=1 to 60
+if peek(49152)>=128 then get ch$
+if ch$="P" then return
 
+if i<>20 then @@demo_color
 ci%=int(rnd(1)*cn%)
 :gosub @select_color
+:gosub @select_stripe
+@@demo_color
 
+if i<>40 then @@demo_aim
 bi=int(rnd(1)*(w+h))
 :gosub @select_stripe
-:gosub @draw_bar
+@@demo_aim
 
-for t=1 to 500:next
-goto @@tutorial_demo
+if i<>60 then @@demo_stripe
+gosub @draw_bar
+@@demo_stripe
+
+next i
+:goto @@tutorial_demo
 
 
 #----------
@@ -391,14 +404,14 @@ bi=t
 gosub @select_stripe
 :gosub @draw_bar
 :gosub @check_match
-if ma% then print ma%;" mismatch  ";
+if ma% then print "progress: ";ma%;" to go ";
 :goto @play_game
 
 t=rnd(1)*3
 :inverse
 if t<1 then print "A perfect match!";
 :goto @@round_over
-if t<2 then print "Delicious!";
+if t<2 then print "Yes! Delicious!";
 :goto @@round_over
 print "Completed! (Yum)";
 @@round_over
@@ -417,7 +430,7 @@ normal
 
 vtab 24
 :htab 1
-:print "Comparing...";
+:print "Comparing...      ";
 :htab 1
 
 ma%=0
