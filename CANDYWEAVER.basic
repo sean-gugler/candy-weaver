@@ -57,7 +57,8 @@ cp%=1
 bp=1
 :bi=0
 :gosub @select_stripe
-print "Left/Right to aim, Space to lay stripe"
+print "Left/Right to aim,"
+print "Space to lay stripe"
 
 return
 
@@ -74,13 +75,24 @@ t$=t4$:gosub @print_centered
 t$=t1$:gosub @print_centered
 t$=t4$:gosub @print_centered
 print
-print "Weave your candy stripes on the right"
-print "to match the pattern on the left."
+print "First time? Press [I]"
+print "for instructions. "
 print
-print "Roll up your sleeves; here we go! ";
+print "Otherwise, Press [P]"
+print "to play!"
+print
 
+@@welcome_input
 get ch$
-i=rnd(-1*(peek(78)+256*peek(79))):rem seed from human reaction time
+
+if ch$="I" then gosub @tutorial
+:goto @welcome
+
+if ch$<>"P" then @@welcome_input
+
+'seed "rnd" from human reaction time
+i=rnd(-1*(peek(78)+256*peek(79)))
+
 return
 
 
@@ -92,6 +104,121 @@ return
 htab 20-len(t$)/2
 :print t$
 :return
+
+#----------
+@key_continue
+'--- Prompt to continue
+vtab 24
+:htab 27
+:print "Press space:";
+:get ch$
+:return
+
+#----------
+@tutorial
+'--- Tutorial
+
+w=3
+:h=3
+:cn%=3
+x=10-w
+:y=20-h
+
+gr
+:home
+print "Welcome to the wonderful world of"
+print "candy weaving!"
+gosub @key_continue
+
+# seeds evaluated:
+# -2,-7,-15,-18,-22,-25,-34,-46,-53,-55,-62,-76,-90,-97,-108,-131,-153,-170,-179,-182,-222
+seed=-222
+@@tutorial_generate
+t=rnd(seed):rem predictable sequence
+home
+:gosub @draw_border
+:gosub @gen_palette
+:gosub @draw_patch
+print "Above, on the left, you will see"
+print "a tasty target pattern."
+#print "seed ";seed
+gosub @key_continue
+#if ch$="r" then seed=seed-1
+#:goto @@tutorial_generate
+
+home
+:x=x+20
+:gosub @draw_border
+print "On the right, you will lay candy"
+print "stripes one at a time until they"
+print "match the pattern."
+gosub @key_continue
+
+home
+print "First, select"
+gosub @draw_color_palette
+print "a flavor of candy"
+print "by pressing its number";
+
+@@tutorial_color
+gosub @input_key
+:ci%=ch-49
+:if ci%<0 or ci%>=cn% then @@tutorial_color
+
+home
+:gosub @draw_color_palette
+:cp%=not(ci%-1)+1
+:gosub @select_color
+print "Next, use left and right arrows to"
+print "aim the candy hose across the top"
+print "or down the right side.";
+t=0
+:bi=2
+:gosub @select_stripe
+
+@@tutorial_aim
+gosub @input_key
+
+if ch=8 then t=t+1
+:gosub @aim_left
+:rem left
+
+if ch=21 then t=t+1
+:gosub @aim_right
+:rem right
+
+if t<5 then @@tutorial_aim
+if t>5 then @@tutorial_draw
+vtab 22
+:htab 1
+:call (-958)
+:rem partial text clear
+print "When ready, press space to lay"
+print "down a candy stripe.";
+
+@@tutorial_draw
+if ch<>32 then @@tutorial_aim
+:rem space
+gosub @draw_bar
+
+home
+:print "Continue laying"
+print "candy stripes until the pattern matches!";
+print "  Press [P] to play"
+print "  Press [M] to return to the menu";
+
+@@tutorial_demo
+if peek(49152)>=128 then return
+
+ci%=int(rnd(1)*cn%)
+:gosub @select_color
+
+bi=int(rnd(1)*(w+h))
+:gosub @select_stripe
+:gosub @draw_bar
+
+for t=1 to 500:next
+goto @@tutorial_demo
 
 
 #----------
@@ -208,6 +335,20 @@ wait 49152,128
 return
 
 #----------
+@aim_left
+'--- Aim hose
+bi=bi-1
+:if bi<0 then bi=w+h-1
+gosub @select_stripe
+return
+
+@aim_right
+bi=bi+1
+:if bi=w+h then bi=0
+gosub @select_stripe
+return
+
+#----------
 @play_game
 '--- Main game loop
 # use: c$ keyboard input
@@ -220,10 +361,12 @@ gosub @input_key
 if ch=83 then return
 :rem debug [S]kip
 
-if ch=8 then @@bar_left
+if ch=8 then gosub @aim_left
+:goto @play_game
 :rem left
 
-if ch=21 then @@bar_right
+if ch=21 then gosub @aim_right
+:goto @play_game
 :rem right
 
 if ch=32 then @@play_bar_current
@@ -239,18 +382,6 @@ if t>=0 and t<w+h then @@play_bar
 
 goto @play_game
 :rem other
-
-@@bar_left
-bi=bi-1
-:if bi<0 then bi=w+h-1
-gosub @select_stripe
-:goto @play_game
-
-@@bar_right
-bi=bi+1
-:if bi=w+h then bi=0
-gosub @select_stripe
-:goto @play_game
 
 @@play_color
 '- choose color
