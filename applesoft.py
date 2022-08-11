@@ -29,9 +29,19 @@ def pass1(raw):
     """
     out = []
     label = {}
+    disable = {}
     n = 0
+    skip = False
     for line in map(str.upper, raw):
         if not line or line.startswith('#'):
+            continue
+        elif line.startswith('!'):
+            disable[line[1:]] = True
+        elif line.startswith('{'):
+            skip = disable.get(line[1:])
+        elif line.startswith('}'):
+            skip = False
+        elif skip:
             continue
         elif line.startswith('@'):
             if line[1] != '@':

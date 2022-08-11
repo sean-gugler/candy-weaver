@@ -7,6 +7,7 @@ t3$="by Sean Gugler"
 t4$="-----------------"
 
 
+#unit_test
 #gosub @test_shuffle:end
 
 gosub @init_vars
@@ -34,6 +35,7 @@ read w,h,cn%
 :y=20-h
 
 gr
+#unit_test
 #gosub @test_row:end
 
 :gosub @gen_palette
@@ -205,9 +207,19 @@ y2=y/2
 :for j=y2 to y2+h-1
 a=ro(j)+x
 :for i=a+1 to a+(w*2) step 2
+
 ma%=ma%+(peek(i)=peek(i-20))
+
+{show_check
+p=peek(i)
+poke(i),255
+for t=1 to 80:next
+poke(i),p
+}show_check
+
 next i
 :next j
+
 
 ma%=(w*h-ma%)
 return
@@ -294,6 +306,7 @@ vlin y,y+h*2 at 1+x+(bi-h)*2
 :return
 
 
+{unit_test
 
 #----------
 @test_shuffle
@@ -332,3 +345,5 @@ poke(ro(10)+38,42)
 poke(ro(19),242)
 poke(ro(19)+39,42)
 return
+
+}unit_test
