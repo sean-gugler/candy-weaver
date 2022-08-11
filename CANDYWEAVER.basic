@@ -12,18 +12,30 @@ t4$="-----------------"
 gosub @init_vars
 gosub @welcome
 
-gr
-#gosub @test_row:end
-
 # max values allowed:
 # w=9, h=9, cn%=9
 
-w=6
-:h=8
-:x=4
-:y=16
+data 8 , 3,3,3 , 4,4,3 , 5,5,3 , 3,3,6 , 4,4,6 , 6,6,4 , 8,8,2 , 9,9,9
 
-cn%=5
+read n
+for r=1 to n
+:gosub @setup_goal
+:gosub @play_game
+:next
+
+end
+
+
+#----------
+@setup_goal
+
+read w,h,cn%
+:x=10-w
+:y=20-h
+
+gr
+#gosub @test_row:end
+
 :gosub @gen_palette
 gosub @draw_patch
 
@@ -33,9 +45,7 @@ cp%=1
 :ci%=0
 :gosub @select_color
 
-gosub @play_game
-
-end
+return
 
 
 #----------
@@ -148,8 +158,8 @@ wait 49152,128
 :get ch$
 ch = asc(ch$)
 
-if ch=27 then return
-:rem ESC
+if ch=19 then return
+:rem CTL+S debug skip
 
 ci%=ch-49
 :rem 1-9
@@ -171,7 +181,7 @@ gosub @select_color
 '- choose line
 gosub @draw_bar
 gosub @check_match
-if ma% then print ma%;" more     ";
+if ma% then print ma%;" more      ";
 :goto @play_game
 
 print "Confection complete! Yum!";
