@@ -4,8 +4,7 @@
 t1$="Candy Weaver"
 t2$="v0.0.3 2022-08-10"
 t3$="by Sean Gugler"
-
-def fn center(s) 20-len(s)/2
+t4$="-----------------"
 
 
 #gosub @test_shuffle:end
@@ -44,10 +43,12 @@ end
 '--- Welcome
 text
 :home
-htab center(t1$):print t1$
+t$=t2$:gosub @print_centered
+t$=t3$:gosub @print_centered
 print
-htab center(t2$):print t2$
-htab center(t3$):print t3$
+t$=t4$:gosub @print_centered
+t$=t1$:gosub @print_centered
+t$=t4$:gosub @print_centered
 print
 print "Weave your candy stripes on the right"
 print "to match the pattern on the left."
@@ -57,6 +58,17 @@ print "Roll up your sleeves; here we go! ";
 get ch$
 i=rnd(-1*(peek(78)+256*peek(79))):rem seed from human reaction time
 return
+
+
+#----------
+@print_centered
+'--- Print Centered
+# arg: t$ the string to center
+
+htab 20-len(t$)/2
+:print t$
+:return
+
 
 #----------
 @init_vars
@@ -159,7 +171,7 @@ gosub @select_color
 '- choose line
 gosub @draw_bar
 gosub @check_match
-if ma% then print ma%;" more    ";
+if ma% then print ma%;" more     ";
 :goto @play_game
 
 print "Confection complete! Yum!";
