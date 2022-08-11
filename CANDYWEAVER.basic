@@ -163,8 +163,8 @@ wait 49152,128
 :get ch$
 ch = asc(ch$)
 
-if ch=19 then return
-:rem CTL+S debug skip
+if ch=83 then return
+:rem debug [S]kip
 
 ci%=ch-49
 :rem 1-9
