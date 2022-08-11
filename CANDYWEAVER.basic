@@ -57,8 +57,8 @@ cp%=1
 bp=1
 :bi=0
 :gosub @select_stripe
-print "Left/Right to aim,"
-print "Space to lay stripe"
+print " Aim: left/right"
+print " Lay candy: Space"
 
 return
 
@@ -170,8 +170,7 @@ home
 :cp%=not(ci%-1)+1
 :gosub @select_color
 print "Next, use left and right arrows to"
-print "aim the candy hose across the top"
-print "or down the right side.";
+print "aim the candy hose. Try it out!"
 t=0
 :bi=2
 :gosub @select_stripe
@@ -188,24 +187,18 @@ if ch=21 then t=t+1
 :rem right
 
 if t<5 then @@tutorial_aim
-if t>5 then @@tutorial_draw
-vtab 22
-:htab 1
-:call (-958)
-:rem partial text clear
-print "When ready, press space to lay"
-print "down a candy stripe.";
-
-@@tutorial_draw
+if t=5 then print "Press space to lay down a candy stripe.";
 if ch<>32 then @@tutorial_aim
 :rem space
 gosub @draw_bar
 
 home
-:print "Continue laying"
-print "candy stripes until the pattern matches!";
-print "  Press [P] to play"
-print "  Press [M] to return to the menu";
+print "Continue laying"
+print "candy stripes until"
+print "the pattern matches!"
+vtab 22:htab 30:print"Press"
+vtab 23:htab 30:print"[P]lay"
+vtab 24:htab 30:print"[M]enu";
 
 @@tutorial_demo
 if peek(49152)>=128 then return
