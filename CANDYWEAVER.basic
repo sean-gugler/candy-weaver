@@ -67,13 +67,17 @@ return
 '--- Help text
 
 vtab 22
-#:htab 1
+:htab 1
 
 if ax then @@help_axes
 call(-868)
-:print " Aim: left/right"
+:print " Aim: left/right";
+htab 24
+:print "[T]oggle expert"
 call(-868)
-:print " Lay candy: Space   [T]oggle expert"
+:print " Lay candy: Space";
+htab 24
+:print "[R]eveal diffs";
 return
 
 
@@ -423,6 +427,11 @@ if ch=84 then ax=not ax
 :goto @play_game
 :rem toggle expert
 
+if ch=82 then v=1
+:gosub @check_match
+:goto @play_game
+:rem reveal diffs
+
 t=ch-49
 :rem 1-9
 if t>=0 and t<cn% then @@play_color
@@ -448,7 +457,11 @@ bi=t
 @@play_bar_current
 gosub @select_stripe
 :gosub @draw_bar
-:gosub @check_match
+vtab 24
+:htab 1
+:print "Comparing...      ";
+:htab 1
+v=0:gosub @check_match
 if ma% then print "progress: ";ma%;" to go ";
 :goto @play_game
 
@@ -470,30 +483,29 @@ normal
 '--- Check for match
 # arg: x,y,w,h GR rect coords
 # arg: ro() array of memory address for each row start
+# arg: v whether to draw diffs or not
 # return: ma% number remaining
 # use: i,j indices
-# use: y2 temp var
-
-vtab 24
-:htab 1
-:print "Comparing...      ";
-:htab 1
+# use: t,y2,p temporary value
 
 ma%=0
+
 
 y2=int((y+1)/2)
 :for j=y2 to y2+h-1
 a=ro(j)+x
 :for i=a+1 to a+(w*2) step 2
 
-ma%=ma%+(peek(i)=peek(i-20))
+t=(peek(i)=peek(i-20))
+ma%=ma%+t
 
-{show_check
+if (not v) or t then @@check_next
 p=peek(i)
 poke(i),255
-for t=1 to 80:next
+for t=1 to 200:next
 poke(i),p
-}show_check
+if peek(49152)>=128 then return
+@@check_next
 
 next i
 :next j
