@@ -76,8 +76,6 @@ htab 24
 :print "[T]oggle expert"
 call(-868)
 :print " Lay candy: Space";
-htab 24
-:print "[R]eveal diffs";
 return
 
 
@@ -459,10 +457,13 @@ gosub @select_stripe
 :gosub @draw_bar
 vtab 24
 :htab 1
+:call(-868)
 :print "Comparing...      ";
 :htab 1
 v=0:gosub @check_match
 if ma% then print "progress: ";ma%;" to go ";
+:htab 24
+:print "[R]eveal diffs";
 :goto @play_game
 
 gosub @clear_stripe
