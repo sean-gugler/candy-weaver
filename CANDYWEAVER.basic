@@ -24,6 +24,7 @@ data 11 , 3,3,3 , 4,4,3 , 5,5,3 , 6,8,3 , 8,3,5 , 3,8,5 , 3,3,6 , 4,4,6 , 6,6,4 
 read n
 for r=1 to n
 :gosub @setup_goal
+:gosub @draw_help
 :gosub @play_game
 :next
 
@@ -32,6 +33,7 @@ end
 
 #----------
 @setup_goal
+'--- Layout a new weave
 
 read w,h,cn%
 :x=9-w
@@ -57,8 +59,44 @@ cp%=1
 bp=1
 :bi=0
 :gosub @select_stripe
-print " Aim: left/right"
-print " Lay candy: Space"
+
+return
+
+#----------
+@draw_help
+'--- Help text
+
+vtab 22
+#:htab 1
+
+if ax then @@help_axes
+call(-868)
+:print " Aim: left/right"
+call(-868)
+:print " Lay candy: Space   [T]oggle expert"
+return
+
+
+@@help_axes
+# arg: w,h patch size
+call(-868)
+:print "Press a letter";
+
+htab x-3
+:print "COL:";
+for i=0 to w-1
+:print " ";chr$(65+i);
+:next
+
+print
+:call(-868)
+:print "to fast-stripe";
+
+htab 26-h
+:print "ROW:";
+for i=w to w+h-1
+:print " ";chr$(65+i);
+:next
 
 return
 
@@ -247,6 +285,9 @@ for n=0 to 7
 :next m
 :next n
 
+# axis-labeled expert mode
+ax=0
+
 return
 
 #----------
@@ -279,21 +320,6 @@ for i=0 to cn%-1
 
 print
 :return
-
-# arg: w,h patch size
-print "Lay a candy stripe:"
-:htab x-h*2
-:print "(";
-for i=0 to h-1
-:if i>0 then print " ";
-print chr$(65+i);
-:next
-:print ")";
-for i=h to w+h-1
-:print " ";chr$(65+i);
-:next
-
-return
 
 #----------
 @select_color
@@ -391,6 +417,11 @@ if ch=10 or ch=21 then gosub @aim_right
 
 if ch=32 then @@play_bar_current
 :rem space
+
+if ch=84 then ax=not ax
+:gosub @draw_help
+:goto @play_game
+:rem toggle expert
 
 t=ch-49
 :rem 1-9
