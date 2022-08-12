@@ -200,8 +200,9 @@ print "candy stripes until"
 print "the pattern matches!"
 gosub @draw_color_palette
 :gosub @select_color
-vtab 22:htab 30:print"Press [P]"
-vtab 23:htab 30:print"to play";
+vtab 22:htab 30:print"--DEMO--"
+vtab 23:htab 30:print"Press [P]"
+vtab 24:htab 30:print"to play!";
 
 @@tutorial_demo
 for i=1 to 60
