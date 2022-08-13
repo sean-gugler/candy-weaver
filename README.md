@@ -27,3 +27,4 @@ References consulted:
 * https://www.calormen.com/jsbasic/reference.html
 * https://www.applefritter.com/content/random-number-generation-apple-ii-applesoft-basic
 * http://www.txbobsc.com/aal/1984/aal8405.html#a1
+* https://github.com/tilleul/apple2/tree/master/applesoft/nfs

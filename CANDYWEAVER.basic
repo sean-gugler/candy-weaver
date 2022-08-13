@@ -1,6 +1,8 @@
 !unit_test
 !show_check
 
+gosub @init_vars
+
 'Copyright 2022 by Sean Gugler
 'licensed under CC BY-NC-SA 4.0
 
@@ -13,13 +15,12 @@ t4$="-----------------"
 #unit_test
 #gosub @test_shuffle:end
 
-gosub @init_vars
 gosub @welcome
 
 # max values allowed:
-# w=8, h=9, cn%=9
+# w=8, h=9, cn=9
 
-data 11 , 3,3,3 , 4,4,3 , 5,5,3 , 6,8,3 , 8,3,5 , 3,8,5 , 3,3,6 , 4,4,6 , 6,6,4 , 8,9,2 , 8,9,9
+data 11 , 8,9,9 , 3,3,3 , 4,4,3 , 5,5,3 , 6,8,3 , 8,3,5 , 3,8,5 , 3,3,6 , 4,4,6 , 6,6,4 , 8,9,2
 
 read n
 for r=1 to n
@@ -35,9 +36,10 @@ end
 @setup_goal
 '--- Layout a new weave
 
-read w,h,cn%
+read w,h,cn
 :x=9-w
 :y=20-h
+:gosub @init_check
 
 gr
 #unit_test
@@ -52,8 +54,8 @@ x=x+20
 home
 :print "Available flavors:"
 :gosub @draw_color_palette
-cp%=1
-:ci%=0
+cp=1
+:ci=0
 :gosub @select_color
 
 bp=1
@@ -160,7 +162,7 @@ vtab 24
 
 w=3
 :h=3
-:cn%=3
+:cn=3
 :x=9-w
 :y=20-h
 
@@ -202,9 +204,9 @@ print "by pressing its number";
 
 @@tutorial_color
 gosub @input_key
-:ci%=ch-49
-:if ci%<0 or ci%>=cn% then @@tutorial_color
-cp%=not(ci%-1)+1
+:ci=ch-49
+:if ci<0 or ci>=cn then @@tutorial_color
+cp=not(ci-1)+1
 
 home
 :gosub @draw_color_palette
@@ -251,9 +253,9 @@ if ch$="P" then return
 
 if i<>20 then @@demo_color
 @@demo_new_color
-t=int(rnd(1)*cn%)
-:if t=ci% then @@demo_new_color
-ci%=t
+t=int(rnd(1)*cn)
+:if t=ci then @@demo_new_color
+ci=t
 :gosub @select_color
 :gosub @select_stripe
 @@demo_color
@@ -277,6 +279,19 @@ next i
 #----------
 @init_vars
 '--- Initialize variables
+
+# pre-declare performance-critical variables
+
+# for @check_match
+ma=0
+:i=0
+:j=0
+:a=0
+:w=0
+:h=0
+:x=0
+:y=0
+
 dim c(15)
 dim s(25)
 
@@ -307,14 +322,14 @@ vlin y-1,y+h*2+1 at x+w*2+1
 #----------
 @draw_color_palette
 '--- Draw color palette
-# arg: cn% number of colors
+# arg: cn number of colors
 # arg: c() array of colors
 # use: i index
 
 vtab 21
 :htab 20
 
-for i=0 to cn%-1
+for i=0 to cn-1
 :color=c(i)
 :vlin 37,38 at 20+i*2
 :print " ";i+1;
@@ -326,21 +341,21 @@ print
 #----------
 @select_color
 '--- Show selected color
-# arg: ci% color index
-# keep: cp% previous color index
+# arg: ci color index
+# keep: cp previous color index
 
-if ci%=cp% then return
+if ci=cp then return
 vtab 21
 
-:htab 21+ci%*2
+:htab 21+ci*2
 :inverse
-:print ci%+1;
+:print ci+1;
 
-:htab 21+cp%*2
+:htab 21+cp*2
 :normal
-:print cp%+1;
+:print cp+1;
 
-cp%=ci%
+cp=ci
 :print
 :return
 
@@ -363,7 +378,7 @@ gosub @draw_border
 
 gosub @clear_stripe
 
-color=c(ci%)
+color=c(ci)
 :ba=bi
 :gosub @draw_axis
 
@@ -400,7 +415,7 @@ return
 @play_game
 '--- Main game loop
 # use: c$ keyboard input
-# use: ci% color index
+# use: ci color index
 # use: bi bar index, @draw_bar
 # use: t temporary value
 
@@ -425,14 +440,13 @@ if ch=84 then ax=not ax
 :goto @play_game
 :rem toggle expert
 
-if ch=82 then v=1
-:gosub @check_match
+if ch=82 then gosub @reveal_diffs
 :goto @play_game
 :rem reveal diffs
 
 t=ch-49
 :rem 1-9
-if t>=0 and t<cn% then @@play_color
+if t>=0 and t<cn then @@play_color
 
 t=ch-65
 :rem A-Z
@@ -443,7 +457,7 @@ goto @play_game
 
 @@play_color
 '- choose color
-ci%=t
+ci=t
 :gosub @select_color
 :gosub @select_stripe
 :goto @play_game
@@ -460,8 +474,8 @@ vtab 24
 :call(-868)
 :print "Comparing...      ";
 :htab 1
-v=0:gosub @check_match
-if ma% then print "progress: ";ma%;" to go ";
+:gosub @check_match
+if ma then print "progress: ";ma;" to go ";
 :htab 24
 :print "[R]eveal diffs";
 :goto @play_game
@@ -480,53 +494,67 @@ normal
 :return
 
 #----------
+@init_check
+'--- Init check variables
+
+j0=(y+1)/2
+:j1=j0+h-1
+:w2=w*2
+
+#----------
 @check_match
 '--- Check for match
 # arg: x,y,w,h GR rect coords
 # arg: ro() array of memory address for each row start
 # arg: v whether to draw diffs or not
-# return: ma% number remaining
+# return: ma number remaining
 # use: i,j indices
 # use: t,y2,p temporary value
 
-ma%=0
+ma=0
 
-
-y2=int((y+1)/2)
-:for j=y2 to y2+h-1
+:for j=j0 to j1
 a=ro(j)+x
-:for i=a+1 to a+(w*2) step 2
-
-t=(peek(i)=peek(i-20))
-ma%=ma%+t
-
-if (not v) or t then @@check_next
-p=peek(i)
-poke(i),255
-for t=1 to 200:next
-poke(i),p
-if peek(49152)>=128 then return
-@@check_next
-
+:for i=a+1 to a+w2 step 2
+ma=ma+(peek(i)=peek(i-20))
 next i
 :next j
 
-
-ma%=(w*h-ma%)
+ma=(w*h-ma)
 return
+
+#----------
+@reveal_diffs
+'--- Reveal differences
+
+for j=j0 to j1
+a=ro(j)+x
+:for i=a+1 to a+w2 step 2
+
+p=peek(i)
+:if p=peek(i-20) then @@diff_next
+poke(i),255
+:for t=1 to 200:next
+:poke(i),p
+if peek(49152)>=128 then return
+
+@@diff_next
+next i
+:next j
+:return
 
 #----------
 @shuffle
 '--- Create a shuffle 
-# arg: sn% length of shuffled sequence [1..26]
+# arg: sn length of shuffled sequence [1..26]
 # use: i,j indices
 # use: t temporary value
 
-for i=0 to sn%-1
+for i=0 to sn-1
 :s(i)=i
 :next
 
-for i=sn%-1 to 0 step -1
+for i=sn-1 to 0 step -1
 :j=rnd(1)*i
 :t=s(i)
 :s(i)=s(j)
@@ -540,15 +568,15 @@ return
 '--- Generate color palette
 # arg: cn number of colors
 # use: ci color index
-# use: sn%, @shuffle
+# use: sn, @shuffle
 # use: i shuffle index, to skip colors that are hard to distinguish
 # use: t temporary value
 
-sn%=15
+sn=15
 :gosub @shuffle
 
 i=0
-:for ci=0 to cn%-1
+:for ci=0 to cn-1
 
 @@reject_color
 t=s(i)
@@ -563,22 +591,22 @@ c(ci)=t
 @draw_patch
 '--- Draw patch
 # arg: x,y,w,h GR rect coords
-# use: sn% @shuffle
-# use: ci% color index
+# use: sn @shuffle
+# use: ci color index
 # use: bi bar index, @draw_bar
 # use: i index
 
-sn%=w+h
+sn=w+h
 :gosub @shuffle
 
-ci%=0
+ci=0
 for i=0 to w+h-1
 
 :bi=s(i)
 :gosub @draw_bar
 
-ci%=ci%+1
-:if ci%=cn% then ci%=0
+ci=ci+1
+:if ci=cn then ci=0
 
 next i
 
@@ -588,10 +616,10 @@ return
 @draw_bar
 '--- Draw a single bar
 # arg: bi  bar number from 0 to w+h-1
-# arg: ci%  color index
+# arg: ci  color index
 # 0..w-1 are vlin, remainder are hlin
 
-color=c(ci%)
+color=c(ci)
 if bi<w then vlin y,y+h*2 at 1+x+bi*2
 :return
 hlin x,x+w*2 at 1+y+(bi-w)*2
@@ -620,23 +648,23 @@ t=x+w*2+1
 
 #----------
 @test_shuffle
-sn%=4
+sn=4
 gosub @shuffle:gosub @print_shuffle
 gosub @shuffle:gosub @print_shuffle
 gosub @shuffle:gosub @print_shuffle
 gosub @shuffle:gosub @print_shuffle
-sn%=16
+sn=16
 gosub @shuffle:gosub @print_shuffle
 gosub @shuffle:gosub @print_shuffle
 gosub @shuffle:gosub @print_shuffle
 gosub @shuffle:gosub @print_shuffle
-sn%=1
+sn=1
 gosub @shuffle:gosub @print_shuffle
-#sn%=0
+#sn=0
 #gosub @shuffle:gosub @print_shuffle
 return
 @print_shuffle
-for i=0 to sn%-1
+for i=0 to sn-1
 :print(s(i));" ";
 :next
 :print
