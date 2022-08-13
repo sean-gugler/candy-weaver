@@ -37,8 +37,7 @@ for r=1 to n
 :gosub @play_game
 :next
 
-end
-
+goto @end_game
 
 #----------
 @setup_goal
@@ -160,7 +159,6 @@ if ch$<>"P" then @@welcome_input
 i=rnd(-1*(peek(78)+256*peek(79)))
 
 return
-
 
 #----------
 @print_centered
@@ -693,6 +691,21 @@ t=x+w*2+1
 :hlin t,t+1 at 1+y+(ba-w)*2
 :return
 
+#----------
+@end_game
+'--- Game over
+
+text
+:home
+:inverse
+t$="Congratulations!":gosub @print_centered
+normal
+:vtab 4
+:print "You've woven all the candy"
+print
+:print "you are a master candy weaver!"
+print
+end
 
 
 {unit_test
