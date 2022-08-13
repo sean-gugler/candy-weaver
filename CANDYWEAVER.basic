@@ -19,11 +19,16 @@ gosub @welcome
 
 # max values allowed:
 # w=8, h=9, cn=9
-#
-# timing guidelines:
-# ts 60 is about right for beginner 3x3x3
 
-data 11 , 8,9,9 , 3,3,3 , 4,4,3 , 5,5,3 , 6,8,3 , 8,3,5 , 3,8,5 , 3,3,6 , 4,4,6 , 6,6,4 , 8,9,2
+data 29
+data 3,3,6,0 , 4,4,8,0 , 5,4,9,0 , 3,3,6,50
+data 5,3,8,0 , 7,3,9,0 , 8,4,7,0 , 5,4,8,60
+data 3,6,6,0 , 4,7,5,0 , 5,9,5,0 , 4,6,7,60
+data 3,3,3,0 , 5,5,5,0 , 7,7,7,0 , 4,4,4,70
+data 6,3,3,0 , 8,4,4,0 , 4,8,3,0 , 3,3,3,40
+data 5,2,2,0 , 6,4,2,0 , 3,4,2,50
+data 8,9,9,0 , 8,9,5,0 , 7,8,2,0 , 3,3,6,20
+data 8,9,2,0 , 6,7,3,90
 
 read n
 for r=1 to n
@@ -39,14 +44,13 @@ end
 @setup_goal
 '--- Layout a new weave
 
-read w,h,cn
+read w,h,cn,ts
 :x=9-w
 :y=20-h
 :m=w*h
 :gosub @init_check
 ti=0
 :tx=0
-:ts=60
 
 if not ts then @@setup_board
 home
