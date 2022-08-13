@@ -19,6 +19,9 @@ gosub @welcome
 
 # max values allowed:
 # w=8, h=9, cn=9
+#
+# timing guidelines:
+# ts 60 is about right for beginner 3x3x3
 
 data 11 , 8,9,9 , 3,3,3 , 4,4,3 , 5,5,3 , 6,8,3 , 8,3,5 , 3,8,5 , 3,3,6 , 4,4,6 , 6,6,4 , 8,9,2
 
@@ -39,8 +42,22 @@ end
 read w,h,cn
 :x=9-w
 :y=20-h
+:m=w*h
 :gosub @init_check
+ti=0
+:tx=0
+:ts=60
 
+if not ts then @@setup_board
+home
+:flash
+:vtab 22
+t$="*** Timed Round! ***"
+:gosub @print_centered
+normal
+:gosub @key_continue
+
+@@setup_board
 gr
 #unit_test
 #gosub @test_row:end
@@ -61,6 +78,9 @@ cp=1
 bp=1
 :bi=0
 :gosub @select_stripe
+
+if ts then color=4
+:hlin 0,39 at 0
 
 return
 
@@ -165,6 +185,7 @@ w=3
 :cn=3
 :x=9-w
 :y=20-h
+ts=0
 
 gr
 :home
@@ -248,7 +269,7 @@ vtab 24:htab 30:print"to play!";
 
 @@tutorial_demo
 for i=1 to 60
-if peek(49152)>=128 then get ch$
+if peek(ky)>=128 then get ch$
 if ch$="P" then return
 
 if i<>20 then @@demo_color
@@ -291,6 +312,8 @@ m=0
 :h=0
 :x=0
 :y=0
+
+ky=49152
 
 dim c(15)
 dim s(25)
@@ -392,8 +415,17 @@ bp=bi
 # return: ch$ string of key that was pressed
 # return: ch apple-ascii value of that key
 
-wait 49152,128
-:get ch$
+@@input_wait
+ti=ti+1
+:if ti=ts then 
+:color=1
+:plot tx,0
+:tx=tx+1
+:ti=0
+if tx=40 then return
+
+if peek(ky)<128 then @@input_wait
+get ch$
 :ch = asc(ch$)
 return
 
@@ -420,6 +452,7 @@ return
 # use: t temporary value
 
 gosub @input_key
+if tx=40 then @@play_timeout
 
 if ch=83 then return
 :rem debug [S]kip
@@ -493,6 +526,15 @@ normal
 :gosub @key_continue
 :return
 
+@@play_timeout
+home
+:flash
+:print "Out of time!"
+normal
+:print "final score: ";m
+gosub @key_continue
+:return
+
 #----------
 @init_check
 '--- Init check variables
@@ -541,7 +583,7 @@ p=peek(i)
 poke(i),255
 :for t=1 to 200:next
 :poke(i),p
-if peek(49152)>=128 then return
+if peek(ky)>=128 then return
 
 @@diff_next
 next i
