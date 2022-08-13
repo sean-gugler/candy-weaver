@@ -281,10 +281,10 @@ next i
 '--- Initialize variables
 
 # pre-declare performance-critical variables
-
 # for @check_match
-ma=0
+m=0
 :i=0
+:o=-20
 :j=0
 :a=0
 :w=0
@@ -475,7 +475,7 @@ vtab 24
 :print "Comparing...      ";
 :htab 1
 :gosub @check_match
-if ma then print "progress: ";ma;" to go ";
+if m then print "progress: ";m;" to go ";
 :htab 24
 :print "[R]eveal diffs";
 :goto @play_game
@@ -506,33 +506,38 @@ j0=(y+1)/2
 '--- Check for match
 # arg: x,y,w,h GR rect coords
 # arg: ro() array of memory address for each row start
-# arg: v whether to draw diffs or not
-# return: ma number remaining
+# arg: o constant -20 to find "other" pattern area
+# return: m number remaining
 # use: i,j indices
-# use: t,y2,p temporary value
+# use: a  temporary value
 
-ma=0
+m=0
 
 :for j=j0 to j1
 a=ro(j)+x
 :for i=a+1 to a+w2 step 2
-ma=ma+(peek(i)=peek(i-20))
+m=m+(peek(i)=peek(i+o))
 next i
 :next j
 
-ma=(w*h-ma)
+m=(w*h-m)
 return
 
 #----------
 @reveal_diffs
 '--- Reveal differences
+# arg: x,y,w,h GR rect coords
+# arg: ro() array of memory address for each row start
+# arg: o constant -20 to find "other" pattern area
+# use: i,j indices
+# use: p  temporary value
 
 for j=j0 to j1
 a=ro(j)+x
 :for i=a+1 to a+w2 step 2
 
 p=peek(i)
-:if p=peek(i-20) then @@diff_next
+:if p=peek(i+o) then @@diff_next
 poke(i),255
 :for t=1 to 200:next
 :poke(i),p
