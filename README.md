@@ -16,6 +16,8 @@ Candy Weaver © 2022 by Sean Gugler is licensed under CC BY-NC-SA 4.0 (Attributi
 
 This game was created for the Apple II Software Enthusiasts "strange jobs/tasks" challenge. Entries must be primarily in Applesoft (data files and small ASM routines allowed) and submitted by 2022-10-31.
 
+# Play Now!
+
 You can play online in two ways:
 
 1. Download [CandyWeaver.dsk](https://github.com/sean-gugler/candy-weaver/raw/main/CandyWeaver.dsk) and click the "open folder" icon at https://www.scullinsteel.com/apple2/ (tip: F2 toggles full-screen)
