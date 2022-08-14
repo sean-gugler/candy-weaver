@@ -20,9 +20,11 @@ You can play online in two ways:
 
 1. Download [CandyWeaver.dsk](https://github.com/sean-gugler/candy-weaver/raw/main/CandyWeaver.dsk) and click the "open folder" icon at https://www.scullinsteel.com/apple2/ (tip: F2 toggles full-screen)
 
-2. Visit [CandyWeaver.txt](https://github.com/sean-gugler/candy-weaver/raw/main/CANDYWEAVER.txt) and copy the entire page into your clipbard, then paste into (CyanIIde)[https://www.paleotronic.com/applesoft/], click "Update", and click "Run"
+2. Visit [CandyWeaver.txt](https://github.com/sean-gugler/candy-weaver/raw/main/CANDYWEAVER.txt) and copy the entire page into your clipbard, then paste into [CyanIIde](https://www.paleotronic.com/applesoft/), click "Update", and click "Run"
 
 You can also download either of those files to use with your favorite local emulator, or real Apple II machine.
+
+# Behind The Scenes
 
 Hours spent: 14
 
