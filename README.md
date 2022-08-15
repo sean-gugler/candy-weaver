@@ -31,12 +31,14 @@ You can also download either of those files to use with your favorite local emul
 Hours spent: 14
 
 Tools used:
-* [AppleWin 1.30.8.0]()
+* [AppleWin 1.30.8.0](https://github.com/AppleWin/AppleWin)
 * [CyanIIde](https://www.paleotronic.com/applesoft/)
-* [CiderPress v4.1.0]()
+* [CiderPress v4.1.0](http://a2ciderpress.com/)
 
 References consulted:
 * https://www.calormen.com/jsbasic/reference.html
 * https://www.applefritter.com/content/random-number-generation-apple-ii-applesoft-basic
 * http://www.txbobsc.com/aal/1984/aal8405.html#a1
 * https://github.com/tilleul/apple2/tree/master/applesoft/nfs
+
+Yes, I wrote my own simplistic text parser for Applesoft BASIC. I wanted to use labels instead of line numbers, unpublished code comments, and conditionally-excluded blocks. 20 minutes of Python saved me hours vs trying to develope exclusively in proper Applesoft syntax.

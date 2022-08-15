@@ -5,6 +5,9 @@ Automatic numbering
 Ignore empty lines and #comments
 Concatenate lines with :line
 Symbolic labels with @name
+
+Created by Sean Gugler
+revised 2022-08-11
 """
 import sys
 import re
