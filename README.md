@@ -14,7 +14,7 @@ Candy Weaver © 2022 by Sean Gugler is licensed under CC BY-NC-SA 4.0 (Attributi
  </a>
 </p>
 
-This game was created for the Apple II Software Enthusiasts "strange jobs/tasks" challenge. Entries must be primarily in Applesoft (data files and small ASM routines allowed) and submitted by 2022-10-31.
+This game was created for the Apple II Software Enthusiasts "strange jobs/tasks" [challenge](https://www.callapple.org/programming/apple-ii-software-enthusiasts-summer-2022-challenge/). Entries must be primarily in Applesoft (data files and small ASM routines allowed) and submitted by 2022-10-31.
 
 # Play Now!
 
@@ -41,4 +41,4 @@ References consulted:
 * http://www.txbobsc.com/aal/1984/aal8405.html#a1
 * https://github.com/tilleul/apple2/tree/master/applesoft/nfs
 
-Yes, I wrote my own simplistic text parser for Applesoft BASIC. I wanted to use labels instead of line numbers, unpublished code comments, and conditionally-excluded blocks. 20 minutes of Python saved me hours vs trying to develope exclusively in proper Applesoft syntax.
+Yes, I wrote my own simplistic text parser for Applesoft BASIC. I wanted to use labels instead of line numbers, unpublished code comments, and conditionally-excluded blocks. 20 minutes of Python saved me hours vs trying to develop exclusively in proper Applesoft syntax.
