@@ -1,7 +1,9 @@
-!unit_test
-!show_check
+#!unit_test
 
 gosub @init_vars
+gosub @init_palette
+gosub @print_color_clash
+end
 
 'Copyright 2022 by Sean Gugler
 'licensed under CC BY-NC-SA 4.0
@@ -17,19 +19,6 @@ t4$="-----------------"
 
 gosub @welcome
 
-# max values allowed:
-# w=8, h=9, cn=9
-
-data 29
-data 3,3,6,0 , 4,4,8,0 , 5,4,9,0 , 3,3,6,50
-data 5,3,8,0 , 7,3,9,0 , 8,4,7,0 , 5,4,8,60
-data 3,6,6,0 , 4,7,5,0 , 5,9,5,0 , 4,6,7,60
-data 3,3,3,0 , 5,5,5,0 , 7,7,7,0 , 4,4,4,70
-data 6,3,3,0 , 8,4,4,0 , 4,8,3,0 , 3,3,3,40
-data 5,2,2,0 , 6,4,2,0 , 3,4,2,50
-data 8,9,9,0 , 8,9,5,0 , 7,8,2,0 , 3,3,6,20
-data 8,9,2,0 , 6,7,3,90
-
 read n
 for r=1 to n
 :gosub @setup_goal
@@ -43,6 +32,8 @@ goto @end_game
 @setup_goal
 '--- Layout a new weave
 
+# max values allowed:
+# w=8, h=9, cn=9
 read w,h,cn,ts
 :x=9-w
 :y=20-h
@@ -98,7 +89,7 @@ if ax then @@help_axes
 call(-868)
 :print " Aim: left/right";
 htab 24
-:print "[T]oggle expert"
+:print "[T]oggle labels"
 call(-868)
 :print " Lay candy: Space";
 return
@@ -613,9 +604,10 @@ for i=sn-1 to 0 step -1
 return
 
 #----------
-@gen_palette
+@gen_palette_rev1
 '--- Generate color palette
 # arg: cn number of colors
+# return: c() array of colors
 # use: ci color index
 # use: sn, @shuffle
 # use: i shuffle index, to skip colors that are hard to distinguish
@@ -635,6 +627,76 @@ t=s(i)
 c(ci)=t
 :next
 :return
+
+#----------
+@init_palette
+'--- Table of clashing colors
+# return: cc() table of clashing colors
+# use: i,j,k general index
+# use: s() temporary 
+
+# Data chosen by visual inspection of @test_color_clash
+# in cyanIIde and multiple view modes on AppleWin
+# severe: 5,10  7,10  7,11  7,14  10,11
+# mild: 1,3  2,4  3,5  3,9  3,10  3,11  5,7  6,14  12,14
+
+dim cc(15*5-1)
+for i=0 to 15
+:s(i)=0
+:next
+
+for k=1 to 14
+read i,j
+n=s(i)
+:cc(i*5+n)=j
+:s(i)=n+1
+n=s(j)
+:cc(j*5+n)=i
+:s(j)=n+1
+next k
+
+return
+
+#----------
+@gen_palette
+'--- Generate color palette
+# arg: cn number of colors
+# arg: cc() table of clashing colors
+# return: c() array of colors
+# use: s(),n  shuffling array
+# use: ci color index
+# use: i,j,k general index
+# use: t temporary value
+
+# seed the list of eligible colors
+for n=0 to 13
+:s(n)=n+1
+:next
+
+# random pick
+for ci=0 to cn
+i=rnd(1)*n
+k=s(i)
+:c(ci)=k
+s(i)=s(n)
+:n=n-1
+
+# eliminate clashing colors
+k=k*5
+for j=k to k+4
+t=cc(j)
+if not t then @@next_pick
+for i=0 to n
+if t=s(i) then
+:s(i)=s(n)
+:i=n
+:n=n-1
+next i
+next j
+
+@@next_pick
+next ci
+
 
 #----------
 @draw_patch
@@ -708,6 +770,46 @@ print
 end
 
 
+
+{color_test
+#----------
+@test_color_clash
+dim ct(39)
+i=0
+
+for c1=1 to 13
+for c2=c1+1 to 14
+
+# draw interleaved band of c1|c2|c1|c2
+if i=0 then gr:home
+print c1;" ";c2;"  ";
+ct(i*5+1)=c1
+ct(i*5+2)=c2
+ct(i*5+3)=c1
+ct(i*5+4)=c2
+i=i+1
+
+if i<8 then @@test_next_color
+for i=0 to 39
+:color=ct(i)
+:vlin 0,39 at i
+:next
+gosub @key_continue
+i=0
+
+@@test_next_color
+next c2
+next c1
+
+for j=0 to i*5
+:color=ct(j)
+:vlin 0,39 at j
+:next
+end
+
+}color_test
+
+
 {unit_test
 
 #----------
@@ -748,4 +850,31 @@ poke(ro(19),242)
 poke(ro(19)+39,42)
 return
 
+#----------
+@print_color_clash
+print "color clash table"
+for i=0 to 14
+print i;": ";
+for j=0 to 4
+print cc(i*5+j);" ";
+next j
+print
+next i
+return
+
 }unit_test
+
+# color clash
+data 5,10 , 7,10 , 7,11 , 7,14 , 10,11
+data 1,3 , 2,4 , 3,5 , 3,9 , 3,10 , 3,11 , 5,7 , 6,14 , 12,14
+
+# campaign sequence
+data 29
+data 3,3,6,0 , 4,4,8,0 , 5,4,9,0 , 3,3,6,50
+data 5,3,8,0 , 7,3,9,0 , 8,4,7,0 , 5,4,8,60
+data 3,6,6,0 , 4,7,5,0 , 5,9,5,0 , 4,6,7,60
+data 3,3,3,0 , 5,5,5,0 , 7,7,7,0 , 4,4,4,70
+data 6,3,3,0 , 8,4,4,0 , 4,8,3,0 , 3,3,3,40
+data 5,2,2,0 , 6,4,2,0 , 3,4,2,50
+data 8,9,9,0 , 8,9,5,0 , 7,8,2,0 , 3,3,6,20
+data 8,9,2,0 , 6,7,3,90
