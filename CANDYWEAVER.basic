@@ -609,6 +609,22 @@ for i=sn-1 to 0 step -1
 return
 
 #----------
+@shuffle_colors
+'--- Shuffle color palette
+# arg: cn number of colors
+# use: i,j indices
+# use: t temporary value
+
+for i=cn-1 to 0 step -1
+:j=rnd(1)*i
+:t=c(i)
+:c(i)=c(j)
+:c(j)=t
+:next
+
+return
+
+#----------
 @init_palette
 '--- Table of clashing colors
 # return: cc() table of clashing colors
@@ -709,6 +725,7 @@ ci=ci+1
 
 next i
 
+gosub @shuffle_colors
 return
 
 #----------
