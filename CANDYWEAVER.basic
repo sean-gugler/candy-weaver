@@ -2,7 +2,8 @@
 
 gosub @init_vars
 gosub @init_palette
-gosub @print_color_clash
+#gosub @print_color_clash
+gosub @test_color_palette
 end
 
 'Copyright 2022 by Sean Gugler
@@ -672,31 +673,37 @@ return
 for n=0 to 13
 :s(n)=n+1
 :next
+print "N=";n
+
+for ci=0 to cn-1
+if n<1 then print ".";:goto @gen_palette
 
 # random pick
-for ci=0 to cn
 i=rnd(1)*n
 k=s(i)
 :c(ci)=k
-s(i)=s(n)
-:n=n-1
+n=n-1
+:s(i)=s(n)
+print k;
 
 # eliminate clashing colors
 k=k*5
 for j=k to k+4
 t=cc(j)
 if not t then @@next_pick
-for i=0 to n
-if t=s(i) then
+for i=0 to n-1
+if t=s(i) then   print " -";t;
+:n=n-1
 :s(i)=s(n)
 :i=n
-:n=n-1
 next i
 next j
 
 @@next_pick
+print
 next ci
 
+return
 
 #----------
 @draw_patch
@@ -860,6 +867,15 @@ print cc(i*5+j);" ";
 next j
 print
 next i
+return
+
+#----------
+@test_color_palette
+cn=9
+for tt=0 to 5
+:gosub @gen_palette
+:print
+:next
 return
 
 }unit_test
