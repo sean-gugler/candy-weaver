@@ -667,16 +667,15 @@ return
 # use: s(),n  shuffling array
 # use: ci color index
 # use: i,j,k general index
-# use: t temporary value
+# use: t,a temporary value
 
 # seed the list of eligible colors
 for n=0 to 13
 :s(n)=n+1
 :next
-print "N=";n
 
-for ci=0 to cn-1
-if n<1 then print ".";:goto @gen_palette
+for ci=cn-1 to 0 step -1
+if n<=ci then print ".";:goto @gen_palette
 
 # random pick
 i=rnd(1)*n
@@ -684,23 +683,22 @@ k=s(i)
 :c(ci)=k
 n=n-1
 :s(i)=s(n)
-print k;
 
 # eliminate clashing colors
 k=k*5
 for j=k to k+4
-t=cc(j)
-if not t then @@next_pick
-for i=0 to n-1
-if t=s(i) then   print " -";t;
-:n=n-1
+a=cc(j)
+:t=(not a)*n
+:if t then j=j+5
+#if not t then @@next_pick
+for i=t to n-1
+if a=s(i) then n=n-1
 :s(i)=s(n)
 :i=n
 next i
 next j
 
 @@next_pick
-print
 next ci
 
 return
@@ -872,9 +870,10 @@ return
 #----------
 @test_color_palette
 cn=9
-for tt=0 to 5
+for tt=1 to 10
+:print cn;
 :gosub @gen_palette
-:print
+:print " ";
 :next
 return
 
