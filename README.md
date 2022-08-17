@@ -28,7 +28,7 @@ You can also download either of those files to use with your favorite local emul
 
 # Behind The Scenes
 
-Hours spent: 14
+Hours spent: 17
 
 Tools used:
 * [AppleWin 1.30.8.0](https://github.com/AppleWin/AppleWin)

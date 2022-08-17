@@ -1,24 +1,23 @@
-#!unit_test
+!unit_test
 
 gosub @init_vars
-gosub @init_palette
-
-#unit_test
-#gosub @print_color_clash
-#gosub @test_color_palette
-#end
+:gosub @init_palette
 
 'Copyright 2022 by Sean Gugler
 'licensed under CC BY-NC-SA 4.0
 
 t1$="Candy Weaver"
-t2$="v0.2.1 2022-08-12"
+t2$="v0.3.0 2022-08-16"
 t3$="by Sean Gugler"
 t4$="-----------------"
 
 
 #unit_test
 #gosub @test_shuffle:end
+#gosub @test_color_clash
+#gosub @print_color_clash
+#gosub @test_color_palette
+#end
 
 gosub @welcome
 
