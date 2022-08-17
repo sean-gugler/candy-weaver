@@ -416,7 +416,7 @@ bp=bi
 @@input_wait
 ti=ti+1
 :if ti=ts then 
-:color=1
+:color=9
 :plot tx,0
 :tx=tx+1
 :ti=0
