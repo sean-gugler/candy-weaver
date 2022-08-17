@@ -2,9 +2,11 @@
 
 gosub @init_vars
 gosub @init_palette
+
+#unit_test
 #gosub @print_color_clash
-gosub @test_color_palette
-end
+#gosub @test_color_palette
+#end
 
 'Copyright 2022 by Sean Gugler
 'licensed under CC BY-NC-SA 4.0
@@ -54,9 +56,11 @@ normal
 
 @@setup_board
 gr
+:home
 #unit_test
 #gosub @test_row:end
 
+:m=0
 :gosub @gen_palette
 :gosub @draw_border
 :gosub @draw_patch
@@ -605,31 +609,6 @@ for i=sn-1 to 0 step -1
 return
 
 #----------
-@gen_palette_rev1
-'--- Generate color palette
-# arg: cn number of colors
-# return: c() array of colors
-# use: ci color index
-# use: sn, @shuffle
-# use: i shuffle index, to skip colors that are hard to distinguish
-# use: t temporary value
-
-sn=15
-:gosub @shuffle
-
-i=0
-:for ci=0 to cn-1
-
-@@reject_color
-t=s(i)
-:i=i+1
-:if t=0 or t=3 or t=5 or t=10 then @@reject_color
-
-c(ci)=t
-:next
-:return
-
-#----------
 @init_palette
 '--- Table of clashing colors
 # return: cc() table of clashing colors
@@ -669,13 +648,18 @@ return
 # use: i,j,k general index
 # use: t,a temporary value
 
+vtab 21
+:print "Selecting flavors..."
+m=m+1
+:if m=3 then print "Taste testing for quality..."
+
 # seed the list of eligible colors
 for n=0 to 13
 :s(n)=n+1
 :next
 
 for ci=cn-1 to 0 step -1
-if n<=ci then print ".";:goto @gen_palette
+if n<=ci then @gen_palette
 
 # random pick
 i=rnd(1)*n
@@ -690,7 +674,6 @@ for j=k to k+4
 a=cc(j)
 :t=(not a)*n
 :if t then j=j+5
-#if not t then @@next_pick
 for i=t to n-1
 if a=s(i) then n=n-1
 :s(i)=s(n)
