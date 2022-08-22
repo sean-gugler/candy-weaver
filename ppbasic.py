@@ -1,13 +1,17 @@
-"""Convert a quick-n-dirty text file into an Applesoft BASIC listing
+"""Pre-processor for BASIC code listings
+
+Suitable for most vintage 70s-80s dialects of BASIC,
+including Applesoft, TRS-80, and Commodore
 
 Features:
-Automatic numbering
-Ignore empty lines and #comments
-Concatenate lines with :line
-Symbolic labels with @name
+* Automatic numbering
+* Ignore empty lines and #comments
+* Concatenate lines with :line
+* Symbolic labels with @name
+* Conditionally-excluded blocks
 
-Created by Sean Gugler
-revised 2022-08-11
+Created by Sean Gugler 2022-08-06
+last revised 2022-08-22
 """
 import sys
 import re
@@ -28,7 +32,7 @@ def round_up(n,m):
 
 def pass1(raw):
     """Convert to BASIC syntax
-    Concatenate lines, skip comments, mark labels
+    Concatenate lines, skip comments, mark labels, make uppercase
     """
     out = []
     label = {}
