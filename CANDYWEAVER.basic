@@ -1,7 +1,6 @@
 !unit_test
 
 gosub @init_vars
-:gosub @init_palette
 
 'Copyright 2022 by Sean Gugler
 'licensed under CC BY-NC-SA 4.0
@@ -23,26 +22,7 @@ gosub @welcome
 
 read n
 for r=1 to n
-:gosub @setup_goal
-:gosub @draw_help
-:gosub @play_game
-:next
-
-goto @end_game
-
-#----------
-@setup_goal
-'--- Layout a new weave
-
-# max values allowed:
-# w=8, h=9, cn=9
 read w,h,cn,ts
-:x=9-w
-:y=20-h
-:m=w*h
-:gosub @init_check
-ti=0
-:tx=0
 
 if not ts then @@setup_board
 home
@@ -54,6 +34,43 @@ normal
 :gosub @key_continue
 
 @@setup_board
+gosub @setup_goal
+:gosub @draw_help
+:gosub @play_game
+
+if tx<>40 then @@next_round
+:print "final score: ";m
+
+@@next_round
+gosub @key_continue
+next
+
+goto @end_game
+
+#----------
+@setup_goal
+'--- Layout a new weave
+# arg: w,h width and height of weave
+# arg: cn number of colors
+# arg: ts timer speed
+# return: x,y position of player's weave
+# init: ti timer counter
+# init: tx timer x position
+# init: ci selected color (index into palette)
+# init: cp previously selected color (index)
+# init: bi selected bar (stripe index)
+# init: bp previously selected bar (index)
+
+# max values allowed:
+# w=8, h=9, cn=9
+x=9-w
+:y=20-h
+:m=w*h
+:gosub @init_check
+ti=0
+:tx=0
+
+# setup_board
 gr
 :home
 #unit_test
@@ -135,17 +152,36 @@ t$=t4$:gosub @print_centered
 t$=t1$:gosub @print_centered
 t$=t4$:gosub @print_centered
 print
-print "First time? Press [I]"
-print "for instructions. "
+print "  Watch a [D]emo"
+print " Take the [T]utorial"
+#print " Play the [S]corecard challenge"
+#print "Start the [S]corecard challenge"
+#print " Play for [S]core, win big!"
+print " Play the [P]rogression challenge"
+#print "   Casual [P]lay / practice"
+#print "Weave and [C]hill for practice"
+#print "    Weave [C]asually for practice"
+#print "   Design [C]asual weaves"
+#print "     Play [C]asually, practice"
+#print "  Play to [C]hill or practice"
+#print " Practice [C]ustomized weaves"
+print " Practice [S]pecific weaves"
 print
-print "Otherwise, Press [P]"
-print "to play!"
-print
-
+#print "What next? ";
+print " Where to? ";
 @@welcome_input
 get ch$
 
-if ch$="I" then gosub @tutorial
+if asc(ch$)=27 then end
+:rem esc
+
+#if ch$="D" then gosub @demo
+#:goto @welcome
+
+if ch$="T" then gosub @tutorial
+:goto @welcome
+
+if ch$="S" then gosub @practice
 :goto @welcome
 
 if ch$<>"P" then @@welcome_input
@@ -293,6 +329,77 @@ gosub @draw_bar
 next i
 :goto @@tutorial_demo
 
+#----------
+@practice
+'--- Practice Menu
+# arg: t$ the string to center
+# use: s() for temporary values
+
+vtab 13
+:htab 1
+print "  Width (2-8): ";w
+print " Height (2-9): ";h
+print "Flavors (2-9): ";cn
+print "  Timer (0-9): ";tv
+print
+print "<Space> to begin"
+print "<ESC> to cancel"
+s(0)=w
+:s(1)=h
+:s(2)=cn
+:s(3)=tv
+i=0
+
+@@practice_menu_mark_cursor
+vtab 14+i
+:htab 16
+:inverse
+:print s(i);
+:normal
+
+@@practice_menu_input
+gosub @input_key
+if ch=27 then return
+:rem esc
+if ch=32 then @@setup_practice
+:rem space
+if ch=13 then ch=s(i)+48
+:rem return key
+
+n=ch-48
+:rem "0"
+if n<(2 * (i<>3)) or n>(8 + (i<>0)) then @@practice_menu_input
+
+s(i)=n
+# unmark old cursor
+htab 16
+:print s(i)
+i=i+1
+:if i>3 then i=0
+
+goto @@practice_menu_mark_cursor
+
+@@setup_practice
+w=s(0)
+:h=s(1)
+:cn=s(2)
+:ts=ta(tv)
+
+@practice_round
+'--- Play a practice round
+gosub @setup_goal
+:gosub @draw_help
+:gosub @play_game
+
+vtab 24
+:htab 24
+:print "Another round?";
+@@practice_again
+get ch$
+if ch$="Y" or ch=13 then @practice_round
+if ch$="N" or ch=27 then return
+goto @@practice_again
+
 
 #----------
 @init_vars
@@ -305,26 +412,34 @@ m=0
 :o=-20
 :j=0
 :a=0
-:w=0
-:h=0
+:w=3
+:h=3
 :x=0
 :y=0
 
 ky=49152
 
+cn=6
+tv=0
+# axis-labeled expert mode
+ax=0
+
 dim c(15)
 dim s(25)
 
 dim ro(24):rem gr mem addr by row
-for n=0 to 7
-:for m=0 to 2
-:ro(n+8*m)=1024+128*n+40*m
-:next m
-:next n
+for i=0 to 7
+:for j=0 to 2
+:ro(i+8*j)=1024+128*i+40*j
+:next j
+:next i
 
-# axis-labeled expert mode
-ax=0
+dim ta(9):rem timer presets
+for i=0 to 9
+:read ta(i)
+:next i
 
+gosub @init_palette
 return
 
 #----------
@@ -462,8 +577,8 @@ if ch=10 or ch=21 then gosub @aim_right
 :goto @play_game
 :rem right
 
-if ch=32 then @@play_bar_current
-:rem space
+if ch=32 or ch=13 then @@play_bar_current
+:rem space, return
 
 if ch=84 then ax=not ax
 :gosub @draw_help
@@ -518,19 +633,17 @@ if t<1 then print "A perfect match!";
 if t<2 then print "Yes! Delicious!";
 :goto @@round_over
 print "Completed! (Yum)";
-@@round_over
-normal
-:gosub @key_continue
-:return
+:goto @@round_over
 
 @@play_timeout
 home
 :flash
 :print "Out of time!"
+
+@@round_over
 normal
-:print "final score: ";m
-gosub @key_continue
 :return
+
 
 #----------
 @init_check
@@ -877,6 +990,9 @@ for tt=1 to 10
 return
 
 }unit_test
+
+# timer presets
+data 0,90,80,70,60,50,40,30,20,10
 
 # color clash
 data 5,10 , 7,10 , 7,11 , 7,14 , 10,11
