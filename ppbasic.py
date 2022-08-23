@@ -53,6 +53,8 @@ def pass1(raw):
         elif line.startswith('@'):
             if line[1] != '@':
                 n = round_up(n,100)
+            if line in label:
+                raise Exception("Duplicate label " + line)
             label[line] = str(n)
         elif line.startswith(':'):
             out[-1] += line
