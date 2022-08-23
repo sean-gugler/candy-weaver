@@ -151,7 +151,8 @@ t$=t4$:gosub @print_centered
 t$=t1$:gosub @print_centered
 t$=t4$:gosub @print_centered
 print
-print "  Watch a [D]emo"
+#print "  Watch a [D]emo"
+print " View the [D]emo"
 print " Take the [T]utorial"
 #print " Play the [S]corecard challenge"
 #print "Start the [S]corecard challenge"
@@ -212,12 +213,16 @@ vtab 24
 @tutorial
 '--- Tutorial
 
+ap=ax
+:ax=0
+
 w=3
 :h=3
-:cn=3
-:x=9-w
+:cn=6
+:ts=0
+x=9-w
 :y=20-h
-ts=0
+:gosub @init_check
 
 gr
 :home
@@ -225,11 +230,9 @@ print "Welcome to the wonderful world of"
 print "candy weaving!"
 gosub @key_continue
 
-# seeds evaluated:
-# -2,-7,-15,-18,-22,-25,-34,-46,-53,-55,-62,-76,-90,-97,-108,-131,-153,-170,-179,-182,-222
-seed=-222
 @@tutorial_generate
-t=rnd(seed):rem predictable sequence
+t=rnd(seed)
+
 home
 :gosub @draw_border
 :gosub @gen_palette
@@ -238,15 +241,15 @@ print "Above, on the left, you will see"
 print "a tasty target pattern."
 #print "seed ";seed
 gosub @key_continue
-#if ch$="r" then seed=seed-1
-#:goto @@tutorial_generate
+if ch$="r" then seed=seed-1
+:goto @@tutorial_generate
 
 home
 :x=x+20
 :gosub @draw_border
 print "On the right, you will lay candy"
-print "stripes one at a time until they"
-print "match the pattern."
+print "stripes one at a time until your"
+print "whole pattern matches the target."
 gosub @key_continue
 
 home
@@ -264,19 +267,23 @@ cp=not(ci-1)+1
 home
 :gosub @draw_color_palette
 :gosub @select_color
-print "Next: press the right arrow several"
-print "times to move the candy hose."
+print "Next: press the right arrow"
+print "to move the candy hose."
 bi=0
 :gosub @select_stripe
 
 @@tutorial_aim
 gosub @input_key
 :if ch<>21 then @@tutorial_aim
+vtab 24
+:htab 1
+:print "Keep going! Watch how it wraps...";
 gosub @aim_right
 :if bi<>0 then @@tutorial_aim
 
 home
 :gosub @draw_color_palette
+:cp=not ci
 :gosub @select_color
 print "Use left and right arrows to aim, then"
 print "Press space to lay down a candy stripe."
@@ -292,9 +299,55 @@ gosub @draw_bar
 home
 print "Continue laying"
 print "candy stripes until"
-print "the pattern matches!"
+print "the patterns match exactly"
 gosub @draw_color_palette
+:cp=not ci
 :gosub @select_color
+
+@play_tutorial
+'--- Tutorial play loop
+gosub @input_key
+
+if ch=83 then return
+:rem debug [S]kip
+
+if ch=11 or ch=8 then gosub @aim_left
+:goto @play_tutorial
+:rem left
+
+if ch=10 or ch=21 then gosub @aim_right
+:goto @play_tutorial
+:rem right
+
+if ch=32 or ch=13 then @@tutorial_bar
+:rem space, return
+
+t=ch-49
+:rem 1-9
+if t<0 or t>=cn then @play_tutorial
+
+ci=t
+:gosub @select_color
+:gosub @select_stripe
+:goto @play_tutorial
+
+@@tutorial_bar
+gosub @select_stripe
+:gosub @draw_bar
+
+gosub @check_match
+:if m then @play_tutorial
+
+gosub @clear_stripe
+vtab 24
+:inverse
+#:print "Congratulations!";
+:print "I say; well done!";
+:normal
+:gosub @key_continue
+
+ax=ap
+return
 
 
 #----------
@@ -311,8 +364,6 @@ w=5
 :cn=7
 :ts=0
 
-seed=-222
-@@tutorial_generate
 t=rnd(seed):rem predictable sequence
 gosub @setup_goal
 
@@ -450,6 +501,11 @@ cn=6
 tv=0
 # axis-labeled expert mode
 ax=0
+
+# predictable rnd() sequence for tutorial
+# Some seeds I liked:
+# -2,-7,-15,-18,-22,-25,-34,-46,-53,-55,-62,-76,-90,-97,-108,-131,-153,-170,-179,-182,-222
+seed=-222
 
 dim c(15)
 dim s(25)
