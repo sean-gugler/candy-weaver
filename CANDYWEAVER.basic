@@ -76,7 +76,6 @@ gr
 #unit_test
 #gosub @test_row:end
 
-:m=0
 :gosub @gen_palette
 :gosub @draw_border
 :gosub @draw_patch
@@ -175,8 +174,8 @@ get ch$
 if asc(ch$)=27 then end
 :rem esc
 
-#if ch$="D" then gosub @demo
-#:goto @welcome
+if ch$="D" then gosub @demo
+:goto @welcome
 
 if ch$="T" then gosub @tutorial
 :goto @welcome
@@ -296,38 +295,66 @@ print "candy stripes until"
 print "the pattern matches!"
 gosub @draw_color_palette
 :gosub @select_color
-vtab 22:htab 30:print"--DEMO--"
-vtab 23:htab 30:print"Press [P]"
-vtab 24:htab 30:print"to play!";
 
-@@tutorial_demo
+
+#----------
+@demo
+'--- Demo loop
+# use: ci,bi current color and bar indices
+# use: i loop index
+# use: t temporary value
+
+### - Setup
+
+w=5
+:h=6
+:cn=7
+:ts=0
+
+seed=-222
+@@tutorial_generate
+t=rnd(seed):rem predictable sequence
+gosub @setup_goal
+
+vtab 21
+:print "Choose a flavor,  "
+print "aim the candy hose,";
+:htab 28:print "---DEMO---"
+print "lay stripes, until the";
+:htab 28:print "Press a key"
+print "entire pattern matches";
+:htab 29:print "to return";
+
+### - Main loop
+
+@@demo_loop
 for i=1 to 60
 if peek(ky)>=128 then get ch$
-if ch$="P" then return
+:return
 
-if i<>20 then @@demo_color
+if i<>20 then @@demo_color_end
 @@demo_new_color
 t=int(rnd(1)*cn)
 :if t=ci then @@demo_new_color
 ci=t
 :gosub @select_color
 :gosub @select_stripe
-@@demo_color
+@@demo_color_end
 
-if i<>40 then @@demo_aim
+if i<>40 then @@demo_aim_end
 @@demo_new_aim
 t=int(rnd(1)*(w+h))
 :if t=bi then @@demo_new_aim
 bi=t
 :gosub @select_stripe
-@@demo_aim
+@@demo_aim_end
 
-if i<>60 then @@demo_stripe
+if i<>60 then @@demo_stripe_end
 gosub @draw_bar
-@@demo_stripe
+@@demo_stripe_end
 
 next i
-:goto @@tutorial_demo
+:goto @@demo_loop
 
 #----------
 @practice
@@ -342,8 +369,8 @@ print " Height (2-9): ";h
 print "Flavors (2-9): ";cn
 print "  Timer (0-9): ";tv
 print
-print "<Space> to begin"
-print "<ESC> to cancel"
+htab 10:print "[Space] to begin"
+htab 10:print "[ESC]   to cancel"
 s(0)=w
 :s(1)=h
 :s(2)=cn
@@ -351,7 +378,7 @@ s(0)=w
 i=0
 
 @@practice_menu_mark_cursor
-vtab 14+i
+vtab 13+i
 :htab 16
 :inverse
 :print s(i);
@@ -776,8 +803,11 @@ return
 # use: i,j,k general index
 # use: t,a temporary value
 
-vtab 21
+m=0
+:vtab 21
 :print "Selecting flavors..."
+
+@@palette_attempt
 m=m+1
 :if m=3 then print "Taste testing for quality..."
 
@@ -787,7 +817,7 @@ for n=0 to 13
 :next
 
 for ci=cn-1 to 0 step -1
-if n<=ci then @gen_palette
+if n<=ci then @@palette_attempt
 
 # random pick
 i=rnd(1)*n
