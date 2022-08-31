@@ -1,6 +1,6 @@
 !unit_test
 
-gosub @init_vars
+gosub @declare_vars
 
 'Copyright 2022 by Sean Gugler
 'licensed under CC BY-NC-SA 4.0
@@ -11,7 +11,7 @@ t3$="by Sean Gugler"
 t4$="-----------------"
 
 
-#unit_test
+# individual unit_test cases
 #gosub @test_shuffle:end
 #gosub @test_color_clash
 #gosub @print_color_clash
@@ -19,10 +19,25 @@ t4$="-----------------"
 #end
 
 gosub @welcome
+:gosub @init_data
 
-read n
-for r=1 to n
-read w,h,cn,ts
+@@menu_loop
+gosub @menu
+gosub @welcome
+goto @@menu_loop
+
+
+#----------
+@challenge
+'--- Play challenge waves
+
+gosub @seed_rnd
+
+for r=1 to dn
+w=dw(r)
+:h=dh(r)
+:cn=dc(r)
+:ts=dt(r)
 
 if not ts then @@setup_board
 home
@@ -150,6 +165,11 @@ print
 t$=t4$:gosub @print_centered
 t$=t1$:gosub @print_centered
 t$=t4$:gosub @print_centered
+return
+
+#----------
+@menu
+'--- Main menu
 print
 #print "  Watch a [D]emo"
 print " View the [D]emo"
@@ -169,27 +189,25 @@ print " Practice [S]pecific weaves"
 print
 #print "What next? ";
 print " Where to? ";
-@@welcome_input
+@@menu_input
 get ch$
 
 if asc(ch$)=27 then end
 :rem esc
 
 if ch$="D" then gosub @demo
-:goto @welcome
+:return
 
 if ch$="T" then gosub @tutorial
-:goto @welcome
+:return
 
 if ch$="S" then gosub @practice
-:goto @welcome
+:return
 
-if ch$<>"P" then @@welcome_input
+if ch$="P" then gosub @challenge
+:return
 
-'seed "rnd" from human reaction time
-i=rnd(-1*(peek(78)+256*peek(79)))
-
-return
+goto @@menu_input
 
 #----------
 @print_centered
@@ -462,6 +480,7 @@ w=s(0)
 :h=s(1)
 :cn=s(2)
 :ts=ta(tv)
+:gosub @seed_rnd
 
 @practice_round
 '--- Play a practice round
@@ -480,8 +499,8 @@ goto @@practice_again
 
 
 #----------
-@init_vars
-'--- Initialize variables
+@declare_vars
+'--- Declare variables
 
 # pre-declare performance-critical variables
 # for @check_match
@@ -507,22 +526,52 @@ ax=0
 # -2,-7,-15,-18,-22,-25,-34,-46,-53,-55,-62,-76,-90,-97,-108,-131,-153,-170,-179,-182,-222
 seed=-222
 
-dim c(15)
-dim s(25)
-
+dim cc(15*5-1):rem color clash table
 dim ro(24):rem gr mem addr by row
+dim c(15):rem color palette
+dim s(25):rem shuffle sequence
+dim ta(9):rem timer presets
+'level data
+dim dw(30)
+:dim dh(30)
+:dim dc(30)
+:dim dt(30)
+
+return
+
+#----------
+@init_data
+'--- Initialize game data
+
+#dim ro(24):rem gr mem addr by row
 for i=0 to 7
 :for j=0 to 2
 :ro(i+8*j)=1024+128*i+40*j
 :next j
 :next i
 
-dim ta(9):rem timer presets
+#dim ta(9):rem timer presets
 for i=0 to 9
 :read ta(i)
 :next i
 
 gosub @init_palette
+
+#level data
+#dim dw(30):dim dh(30):dim dc(30):dim dt(30)
+read dn
+:for i=0 to dn-1
+:read dw(i),dh(i),dc(i),dt(i)
+:next
+
+return
+
+#----------
+@seed_rnd
+'--- seed "rnd" from human reaction time
+# These locations are a 16-byte counter
+# incremented by the system during get$
+i=rnd(-1*(peek(78)+256*peek(79)))
 return
 
 #----------
@@ -831,7 +880,7 @@ return
 # severe: 5,10  7,10  7,11  7,14  10,11
 # mild: 1,3  2,4  3,5  3,9  3,10  3,11  5,7  6,14  12,14
 
-dim cc(15*5-1)
+#dim cc(15*5-1)
 for i=0 to 15
 :s(i)=0
 :next

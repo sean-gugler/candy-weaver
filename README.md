@@ -28,7 +28,7 @@ You can also download either of those files to use with your favorite local emul
 
 # Behind The Scenes
 
-Hours spent: 17
+Hours spent: 22
 
 Tools used:
 * [AppleWin 1.30.8.0](https://github.com/AppleWin/AppleWin)
@@ -41,4 +41,4 @@ References consulted:
 * http://www.txbobsc.com/aal/1984/aal8405.html#a1
 * https://github.com/tilleul/apple2/tree/master/applesoft/nfs
 
-Yes, I wrote my own simplistic text parser for Applesoft BASIC. I wanted to use labels instead of line numbers, unpublished code comments, and conditionally-excluded blocks. 20 minutes of Python saved me hours vs trying to develop exclusively in proper Applesoft syntax.
+Yes, I wrote my own simplistic text pre-processor for BASIC. I wanted to use labels instead of line numbers, unpublished code comments, and conditionally-excluded blocks. 20 minutes of Python saved me hours vs trying to develop exclusively in proper Applesoft syntax.
