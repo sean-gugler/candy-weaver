@@ -28,7 +28,7 @@ You can also download either of those files to use with your favorite local emul
 
 # Behind The Scenes
 
-Hours spent: 22
+Time spent: 22 hours development + 4 hours QA
 
 Tools used:
 * [AppleWin 1.30.8.0](https://github.com/AppleWin/AppleWin)
