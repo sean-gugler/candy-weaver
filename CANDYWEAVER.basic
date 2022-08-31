@@ -51,10 +51,14 @@ normal
 @@setup_board
 gosub @setup_goal
 :gosub @draw_help
-:gosub @play_game
+gosub @play_game
+:if tx=-1 then return
 
 if tx<>40 then @@next_round
-:print "final score: ";m
+#print "final score: ";m
+print "Better luck next time!"
+gosub @key_continue
+return
 
 @@next_round
 gosub @key_continue
@@ -112,6 +116,19 @@ if ts then color=4
 :hlin 0,39 at 0
 
 return
+
+#----------
+@draw_abort
+'--- Abort prompt
+
+vtab 22
+:htab 1
+:call(-868)
+htab 24
+:print "Abandon game?"
+call(-868)
+return
+
 
 #----------
 @draw_help
@@ -486,7 +503,8 @@ w=s(0)
 '--- Play a practice round
 gosub @setup_goal
 :gosub @draw_help
-:gosub @play_game
+gosub @play_game
+:if tx=-1 then return
 
 vtab 24
 :htab 24
@@ -698,8 +716,8 @@ return
 gosub @input_key
 if tx=40 then @@play_timeout
 
-if ch=83 then return
-:rem debug [S]kip
+if ch=27 then @@ask_abort
+:rem esc
 
 if ch=11 or ch=8 then gosub @aim_left
 :goto @play_game
@@ -766,6 +784,22 @@ if t<2 then print "Yes! Delicious!";
 :goto @@round_over
 print "Completed! (Yum)";
 :goto @@round_over
+
+@@ask_abort
+gosub @draw_abort
+@@input_abort
+gosub @input_key
+if tx=40 then @@play_timeout
+if ch=78 or ch=27 then gosub @draw_help
+:goto @play_game
+:rem [N]o
+if ch=89 then tx=-1
+:home
+:goto @@round_over
+:rem [Y]es
+if ch=83 then return
+:rem debug [S]kip
+goto @@input_abort
 
 @@play_timeout
 home
