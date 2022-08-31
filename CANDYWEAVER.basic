@@ -33,7 +33,7 @@ goto @@menu_loop
 
 gosub @seed_rnd
 
-for r=1 to dn
+for r=0 to dn-1
 w=dw(r)
 :h=dh(r)
 :cn=dc(r)
@@ -676,6 +676,8 @@ bp=bi
 # Does not show a flashing cursor.
 # return: ch$ string of key that was pressed
 # return: ch apple-ascii value of that key
+ch$=""
+:ch=0
 
 @@input_wait
 ti=ti+1
