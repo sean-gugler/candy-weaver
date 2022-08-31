@@ -259,6 +259,7 @@ w=3
 :h=3
 :cn=6
 :ts=0
+:tx=0
 x=9-w
 :y=20-h
 :gosub @init_check
@@ -465,6 +466,8 @@ s(0)=w
 :s(1)=h
 :s(2)=cn
 :s(3)=tv
+:ts=0
+:tx=0
 i=0
 
 @@practice_menu_mark_cursor
@@ -500,6 +503,7 @@ goto @@practice_menu_mark_cursor
 w=s(0)
 :h=s(1)
 :cn=s(2)
+:tv=s(3)
 :ts=ta(tv)
 :gosub @seed_rnd
 
