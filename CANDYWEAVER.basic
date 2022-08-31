@@ -18,12 +18,15 @@ t4$="-----------------"
 #gosub @test_color_palette
 #end
 
-gosub @welcome
+t=1
+:gosub @welcome
 :gosub @init_data
 
 @@menu_loop
+home
+:t=0
+:gosub @welcome
 gosub @menu
-gosub @welcome
 goto @@menu_loop
 
 
@@ -180,7 +183,8 @@ t$=t2$:gosub @print_centered
 t$=t3$:gosub @print_centered
 print
 t$=t4$:gosub @print_centered
-t$=t1$:gosub @print_centered
+if t then flash
+t$=t1$:gosub @print_centered:normal
 t$=t4$:gosub @print_centered
 return
 
