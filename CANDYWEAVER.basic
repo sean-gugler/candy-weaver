@@ -1,4 +1,5 @@
 !unit_test
+!color_test
 
 gosub @declare_vars
 
