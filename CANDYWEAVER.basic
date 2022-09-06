@@ -679,6 +679,7 @@ color=c(ci)
 :gosub @draw_axis
 
 bp=bi
+:ti=ti+8
 :return
 
 #----------
@@ -692,7 +693,7 @@ ch$=""
 
 @@input_wait
 ti=ti+1
-:if ti=ts then 
+:if ts and ti>=ts then 
 :color=9
 :plot tx,0
 :tx=tx+1
@@ -727,6 +728,7 @@ return
 # use: t temporary value
 
 gosub @input_key
+ti=ti+3
 if tx=40 then @@play_timeout
 
 if ch=27 then @@ask_abort
@@ -743,7 +745,8 @@ if ch=10 or ch=21 then gosub @aim_right
 if ch=32 or ch=13 then @@play_bar_current
 :rem space, return
 
-if ch=84 then ax=not ax
+if ch=84 then ti=ti+3
+:ax=not ax
 :gosub @draw_help
 :goto @play_game
 :rem toggle expert
@@ -772,6 +775,9 @@ ci=t
 
 @@play_bar
 '- choose line
+#2x2 ts+=13
+#8x9 ts+=30
+ti=ti+9+(w*h/4)
 bi=t
 
 @@play_bar_current
@@ -799,6 +805,7 @@ print "Completed! (Yum)";
 :goto @@round_over
 
 @@ask_abort
+ti=ti+2
 gosub @draw_abort
 @@input_abort
 gosub @input_key
@@ -1181,6 +1188,8 @@ data 5,10 , 7,10 , 7,11 , 7,14 , 10,11
 data 1,3 , 2,4 , 3,5 , 3,9 , 3,10 , 3,11 , 5,7 , 6,14 , 12,14
 
 # campaign sequence
+# Note: time should always be at least 12 + (w*h)/4
+# because that's how long check_match will take
 data 29
 data 3,3,6,0 , 4,4,8,0 , 5,4,9,0 , 3,3,6,50
 data 5,3,8,0 , 7,3,9,0 , 8,4,7,0 , 5,4,8,60
