@@ -21,6 +21,8 @@ t4$="------------------"
 
 t=1
 :gosub @welcome
+print
+:print "Preparing the kitchen..."
 :gosub @init_data
 
 @@menu_loop
