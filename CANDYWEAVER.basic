@@ -90,7 +90,8 @@ goto @end_game
 # w=8, h=9, cn=9
 x=9-w
 :y=20-h
-:m=w*h
+:wh=w*h
+:m=wh
 :gosub @init_check
 ti=0
 :tx=0
@@ -538,10 +539,14 @@ m=0
 :o=-20
 :j=0
 :a=0
-:w=3
-:h=3
+:w2=0
 :x=0
 :y=0
+:j0=0
+:j1=0
+:wh=9
+:w=3
+:h=3
 
 ky=49152
 
@@ -777,7 +782,7 @@ ci=t
 '- choose line
 #2x2 ts+=13
 #8x9 ts+=30
-ti=ti+9+(w*h/4)
+ti=ti+9+(wh/4)
 bi=t
 
 @@play_bar_current
@@ -856,10 +861,10 @@ m=0
 a=ro(j)+x
 :for i=a+1 to a+w2 step 2
 m=m+(peek(i)=peek(i+o))
-next i
+next
 :next j
 
-m=(w*h-m)
+m=wh-m
 return
 
 #----------
