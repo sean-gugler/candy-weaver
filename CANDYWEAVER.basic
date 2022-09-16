@@ -1,9 +1,3 @@
-!unit_test
-!color_test
-
-`ZERO=z
-`ONE=u
-
 gosub @declare_vars
 
 'Copyright 2022 by Sean Gugler
@@ -15,6 +9,15 @@ t3$="by Sean Gugler"
 t4$="------------------"
 
 
+!unit_test
+!color_test
+
+`ZERO=z
+`ONE=u
+
+#----------
+#TESTS
+#
 #gosub @init_data
 #
 # individual unit_test cases
@@ -25,7 +28,7 @@ t4$="------------------"
 #
 # individual color_test cases
 #gosub @test_color_clash:end
-
+#----------
 
 goto @main
 
