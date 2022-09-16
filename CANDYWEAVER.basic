@@ -50,41 +50,42 @@ get ch$
 :return
 
 #----------
-@select_stripe
-'--- Show selected stripe
-# arg: bi bar index
+@draw_hose
+'--- Draw colored hose
+# arg: bi bar index from 0 to w+h-1
+# arg: bx(),by()   pre-calculated plot coordinates for hose
 # keep: bp previous bar index
-
-gosub @clear_stripe
-
-color=c(ci)
-:ba=bi
-:gosub @draw_axis
-
-bp=bi
-:return
-
-#----------
-@clear_stripe
-'--- Clear stripe indictor
-
-color=0
-:ba=bp
-:gosub @draw_axis
-
-gosub @draw_border
-:return
-
-#----------
-@draw_axis
-'--- Draw axis indicator
-# arg: ba  bar axis number from 0 to w+h-1
 # use: t temporary value
 
-if ba<w then vlin y-3,y-1 at 1+x+ba*2
+#do not check bp; that would prevent @select_color from working properly
+#if bi=bp then return
+
+gosub @clear_hose
+
+:bp=bi
+:color=c(ci)
+
+:t=bi+bi
+:plot bx(t),by(t)
+:t=t+1
+:plot bx(t),by(t)
 :return
-t=x+w*2+1
-:hlin t,t+1 at 1+y+(ba-w)*2
+
+#----------
+@clear_hose
+'--- Clear hose
+# arg: bp previous bar index from 0 to w+h-1
+# arg: bx(),by()   pre-calculated plot coordinates for hose
+# use: t temporary value
+
+color=15
+:t=bp+bp
+:plot bx(t),by(t)
+
+:color=0
+:t=t+1
+:plot bx(t),by(t)
+
 :return
 
 #----------
@@ -92,13 +93,13 @@ t=x+w*2+1
 '--- Aim hose
 bi=bi-1
 :if bi<0 then bi=w+h-1
-goto @select_stripe
+goto @draw_hose
 # 'goto N' = 'gosub N:return'
 
 @aim_right
 bi=bi+1
 :if bi=w+h then bi=0
-goto @select_stripe
+goto @draw_hose
 # 'goto N' = 'gosub N:return'
 
 #----------
@@ -213,26 +214,27 @@ for i=1 to 60
 if peek(ky)>=128 then get ch$
 :return
 
-if i<>20 then @@demo_color_end
+if i<>20 then @@demo_end_color
 @@demo_new_color
 t=int(rnd(1)*cn)
 :if t=ci then @@demo_new_color
 ci=t
 :gosub @select_color
-:gosub @select_stripe
-@@demo_color_end
+:gosub @draw_hose
+@@demo_end_color
 
-if i<>40 then @@demo_aim_end
+if i<>40 then @@demo_end_aim
 @@demo_new_aim
 t=int(rnd(1)*(w+h))
 :if t=bi then @@demo_new_aim
 bi=t
-:gosub @select_stripe
-@@demo_aim_end
+:gosub @draw_hose
+@@demo_end_aim
 
-if i<>60 then @@demo_stripe_end
+if i<>60 then @@demo_end_stripe
+@@demo_new_stripe
 gosub @draw_bar
-@@demo_stripe_end
+@@demo_end_stripe
 
 next i
 :goto @@demo_loop
@@ -300,7 +302,8 @@ home
 print "Next: press the right arrow"
 print "to move the candy hose."
 bi=0
-:gosub @select_stripe
+:gosub @init_hose
+:gosub @draw_hose
 
 @@tutorial_aim
 gosub @input_key
@@ -358,17 +361,17 @@ if t<0 or t>=cn then @play_tutorial
 
 ci=t
 :gosub @select_color
-:gosub @select_stripe
+:gosub @draw_hose
 :goto @play_tutorial
 
 @@tutorial_bar
-gosub @select_stripe
+gosub @draw_hose
 :gosub @draw_bar
 
 gosub @check_match
 :if m then @play_tutorial
 
-gosub @clear_stripe
+gosub @clear_hose
 vtab 24
 :inverse
 #:print "Congratulations!";
@@ -558,13 +561,13 @@ goto @play_game
 '- choose color
 ci=t
 :gosub @select_color
-:gosub @select_stripe
+:gosub @draw_hose
 :goto @play_game
 
 @@play_bar
 '- choose line
 bi=t
-:gosub @select_stripe
+:gosub @draw_hose
 
 @@play_bar_current
 gosub @draw_bar
@@ -579,7 +582,7 @@ if m then print "progress: ";m;" to go ";
 :print "[R]eveal diffs";
 :goto @play_game
 
-gosub @clear_stripe
+gosub @clear_hose
 t=rnd(1)*3
 :inverse
 if t<1 then print "A perfect match!";
@@ -651,16 +654,13 @@ ax=0
 # -2,-7,-15,-18,-22,-25,-34,-46,-53,-55,-62,-76,-90,-97,-108,-131,-153,-170,-179,-182,-222
 seed=-222
 
-dim cc(15*5-1):rem color clash table
 dim ro(24):rem gr mem addr by row
+dim bx(33),by(33):rem hose coordinates
 dim c(15):rem color palette
 dim s(25):rem shuffle sequence
+dim cc(15*5-1):rem color clash table
 dim ta(9):rem timer presets
-'level data
-dim dw(30)
-:dim dh(30)
-:dim dc(30)
-:dim dt(30)
+dim dw(30),dh(30),dc(30),dt(30):rem level data
 
 return
 
@@ -870,9 +870,10 @@ cp=1
 :ci=0
 :gosub @select_color
 
-bp=1
+gosub @init_hose
+:bp=1
 :bi=0
-:gosub @select_stripe
+:gosub @draw_hose
 
 if ts then color=4
 :hlin 0,39 at 0
@@ -1070,6 +1071,40 @@ for i=cn-1 to 0 step -1
 :t=c(i)
 :c(i)=c(j)
 :c(j)=t
+:next
+
+return
+
+#----------
+@init_hose
+'--- Initialize hose coordinates
+# arg: x,y,w,h GR rect coords
+# return: bx(),by()   pre-calculated plot coordinates for hose
+# use: i              loop index
+# use: x0,x1,y0,y1,t  temporary values
+
+#dim bx(33),by(33)    max (w+h)*2
+
+y1=y-2
+:y0=y1+1
+:t=1+x
+for i=0 to (w-1)*2 step 2
+bx(i)=t
+:bx(i+1)=t
+by(i)=y0
+:by(i+1)=y1
+t=t+2
+:next
+
+x0=x+w*2+1
+:x1=x0+1
+:t=1+y
+for i=i to (w+h-1)*2 step 2
+bx(i)=x0
+:bx(i+1)=x1
+by(i)=t
+:by(i+1)=t
+t=t+2
 :next
 
 return
