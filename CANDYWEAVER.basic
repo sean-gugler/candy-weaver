@@ -14,6 +14,7 @@ t4$="------------------"
 
 `ZERO=z
 `ONE=u
+`INF=f
 
 #----------
 #TESTS
@@ -46,7 +47,7 @@ goto @main
 ch$=""
 :ch=`ZERO
 
-@@input_wait
+for t=`ZERO to `INF
 ti=ti+`ONE
 :if ti=ts then ti=`ZERO
 :color=9
@@ -54,7 +55,7 @@ ti=ti+`ONE
 :tx=tx+`ONE
 :if tx=40 then return
 
-if peek(ky)<k8 then @@input_wait
+if peek(ky)<k8 then next
 get ch$
 :ch = asc(ch$)
 :return
@@ -532,6 +533,8 @@ return
 # use: bi bar index, @draw_bar
 # use: t temporary value
 
+for q=`ZERO to `INF
+
 gosub @input_key
 if tx=40 then @@play_timeout
 
@@ -539,11 +542,11 @@ if ch=27 then @@ask_abort
 :rem esc
 
 if ch=11 or ch=8 then gosub @aim_left
-:goto @play_game
+:next q
 :rem left
 
 if ch=10 or ch=21 then gosub @aim_right
-:goto @play_game
+:next q
 :rem right
 
 if ch=32 or ch=13 then @@play_bar_current
@@ -551,11 +554,11 @@ if ch=32 or ch=13 then @@play_bar_current
 
 if ch=84 then ax=not ax
 :gosub @draw_help
-:goto @play_game
+:next q
 :rem toggle expert
 
 if ch=82 then gosub @reveal_diffs
-:goto @play_game
+:next q
 :rem reveal diffs
 
 t=ch-49
@@ -566,7 +569,7 @@ t=ch-65
 :rem A-Z
 if t>=`ZERO and t<w+h then @@play_bar
 
-goto @play_game
+next q
 :rem other
 
 @@play_color
@@ -574,7 +577,7 @@ goto @play_game
 ci=t
 :gosub @select_color
 :gosub @draw_hose
-:goto @play_game
+:next q
 
 @@play_bar
 '- choose line
@@ -592,7 +595,7 @@ vtab 24
 if m then print "progress: ";m;" to go ";
 :htab 24
 :print "[R]eveal diffs";
-:goto @play_game
+:next q
 
 gosub @clear_hose
 t=rnd(`ONE)*3
@@ -610,7 +613,7 @@ gosub @draw_abort
 gosub @input_key
 if tx=40 then @@play_timeout
 if ch=78 or ch=27 then gosub @draw_help
-:goto @play_game
+:next q
 :rem [N]o
 if ch=89 then tx=-1
 :home
@@ -643,6 +646,9 @@ z=0
 :u=1
 :ky=49152
 :k8=128
+:f=1e30
+# BASIC mantissa loses precision around 1e10; adding 1 no longer increases the value.
+# Limit of representation is around 1e38. I chose 1e30 as a safe "infinite" ceiling.
 
 # pre-declare performance-critical variables
 # for @check_match
