@@ -12,12 +12,17 @@ t3$="by Sean Gugler"
 t4$="------------------"
 
 
+#gosub @init_data
+#
 # individual unit_test cases
 #gosub @test_shuffle:end
-#gosub @test_color_clash
-#gosub @print_color_clash
-#gosub @test_color_palette
-#end
+#gosub @print_color_clash:end
+#gosub @test_color_palette:end
+#gr:gosub @test_row:end
+#
+# individual color_test cases
+#gosub @test_color_clash:end
+
 
 goto @main
 
@@ -856,9 +861,6 @@ ti=0
 # setup_board
 gr
 :home
-#unit_test
-#gosub @test_row:end
-
 :gosub @gen_palette
 :gosub @draw_border
 :gosub @draw_patch
@@ -1183,16 +1185,16 @@ for i=0 to sn-1
 
 #----------
 @test_row
-poke(ro(0),242)
-poke(ro(0)+39,42)
-poke(ro(1)+1,242)
-poke(ro(2)+38,42)
-poke(ro(8),242)
-poke(ro(8)+39,42)
-poke(ro(9)+1,242)
-poke(ro(10)+38,42)
-poke(ro(19),242)
-poke(ro(19)+39,42)
+poke ro(0),242
+poke ro(0)+39,42
+poke ro(1)+1,242
+poke ro(2)+38,42
+poke ro(8),242
+poke ro(8)+39,42
+poke ro(9)+1,242
+poke ro(10)+38,42
+poke ro(19),242
+poke ro(19)+39,42
 return
 
 #----------
@@ -1211,10 +1213,9 @@ return
 @test_color_palette
 cn=9
 for tt=1 to 10
-:print cn;
 :gosub @gen_palette
-:print " ";
-:next
+:print cn,tt
+:next tt
 return
 
 }unit_test
