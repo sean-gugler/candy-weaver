@@ -9,6 +9,7 @@ Features:
 * Ignore empty lines and #comments
 * Concatenate lines with :line
 * Symbolic labels with @name
+* Aliases with `NAME
 * Conditionally-excluded blocks
 * Dependency graph; viewer at http://viz-js.com/
 
@@ -20,6 +21,7 @@ import re
 import argparse
 from pathlib import Path
 
+patVar = re.compile(r'`\w+')
 patLabel = re.compile(r'@+\w+')
 
 def usage():
@@ -33,8 +35,8 @@ def main(infile):
     file = Path(infile)
     lines = file.read_text().split('\n')
 
-    numbered,labels = pass1(lines)
-    fixup,deps = pass2(numbered,labels)
+    numbered,var,labels = pass1(lines)
+    fixup,deps = pass2(numbered,var,labels)
 
     file.with_suffix('.txt').write_text('\n'.join(fixup)+'\n')
     if args.deps:
@@ -47,6 +49,7 @@ def round_up(n,m):
 def pass1(raw):
     """Auto-number, and apply all pre-processing directives."""
     out = []
+    var = {}
     label = {}
     disable = {}
     n = 0
@@ -70,6 +73,9 @@ def pass1(raw):
             if line in label:
                 raise Exception("Duplicate label " + line)
             label[line] = str(n)
+        elif line.startswith('`'):
+            name, value = line.split('=')
+            var[name] = value
         elif line.startswith(':'):
             out[-1] += line
         else:
@@ -77,9 +83,9 @@ def pass1(raw):
                 line = f'REM {line[1:]}'
             out.append(f'{n} {line}')
             n += 10
-    return out,label
+    return out,var,label
 
-def pass2(bas,label):
+def pass2(bas,var,label):
     """Fixup labels, create dependency graph"""
     dep = []
     here = 'TOP'
@@ -93,7 +99,9 @@ def pass2(bas,label):
     for line in bas:
         n = line.split(' ',1)[0]
         here = section.get(n, here)
-        fixed.append(patLabel.sub (line_num, line))
+        line = patVar.sub (lambda m: var[m.group(0)], line)
+        line = patLabel.sub (line_num, line)
+        fixed.append(line)
     return fixed, dep
 
 def fmt_dot(deps):
