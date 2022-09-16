@@ -42,12 +42,12 @@ ti=ti+1
 :plot tx,0
 :tx=tx+1
 :ti=0
-if tx=40 then return
+:if tx=40 then return
 
 if peek(ky)<128 then @@input_wait
 get ch$
 :ch = asc(ch$)
-return
+:return
 
 #----------
 @select_stripe
@@ -92,14 +92,14 @@ t=x+w*2+1
 '--- Aim hose
 bi=bi-1
 :if bi<0 then bi=w+h-1
-gosub @select_stripe
-return
+goto @select_stripe
+# 'goto N' = 'gosub N:return'
 
 @aim_right
 bi=bi+1
 :if bi=w+h then bi=0
-gosub @select_stripe
-return
+goto @select_stripe
+# 'goto N' = 'gosub N:return'
 
 #----------
 @draw_bar
@@ -494,12 +494,8 @@ return
 gosub @key_continue
 next
 
-goto @end_game
 
-#----------
-@end_game
-'--- Game over
-
+# Challenge complete
 text
 :home
 :inverse
@@ -509,8 +505,8 @@ normal
 :print "You've woven all the candy"
 print
 :print "you are a master candy weaver!"
-print
-end
+gosub @key_continue
+return
 
 
 #----------
@@ -568,10 +564,10 @@ ci=t
 @@play_bar
 '- choose line
 bi=t
+:gosub @select_stripe
 
 @@play_bar_current
-gosub @select_stripe
-:gosub @draw_bar
+gosub @draw_bar
 vtab 24
 :htab 1
 :call(-868)
