@@ -1,6 +1,9 @@
 !unit_test
 !color_test
 
+`ZERO=z
+`ONE=u
+
 gosub @declare_vars
 
 'Copyright 2022 by Sean Gugler
@@ -38,17 +41,17 @@ goto @main
 # return: ch$ string of key that was pressed
 # return: ch apple-ascii value of that key
 ch$=""
-:ch=0
+:ch=`ZERO
 
 @@input_wait
-ti=ti+1
-:if ti=ts then ti=0
+ti=ti+`ONE
+:if ti=ts then ti=`ZERO
 :color=9
-:plot tx,0
-:tx=tx+1
+:plot tx,`ZERO
+:tx=tx+`ONE
 :if tx=40 then return
 
-if peek(ky)<128 then @@input_wait
+if peek(ky)<k8 then @@input_wait
 get ch$
 :ch = asc(ch$)
 :return
@@ -71,7 +74,7 @@ gosub @clear_hose
 
 :t=bi+bi
 :plot bx(t),by(t)
-:t=t+1
+:t=t+`ONE
 :plot bx(t),by(t)
 :return
 
@@ -86,8 +89,8 @@ color=15
 :t=bp+bp
 :plot bx(t),by(t)
 
-:color=0
-:t=t+1
+:color=`ZERO
+:t=t+`ONE
 :plot bx(t),by(t)
 
 :return
@@ -95,14 +98,14 @@ color=15
 #----------
 @aim_left
 '--- Aim hose
-bi=bi-1
-:if bi<0 then bi=w+h-1
+bi=bi-`ONE
+:if bi<`ZERO then bi=w+h-`ONE
 goto @draw_hose
 # 'goto N' = 'gosub N:return'
 
 @aim_right
-bi=bi+1
-:if bi=w+h then bi=0
+bi=bi+`ONE
+:if bi=w+h then bi=`ZERO
 goto @draw_hose
 # 'goto N' = 'gosub N:return'
 
@@ -114,9 +117,9 @@ goto @draw_hose
 # 0..w-1 are vlin, remainder are hlin
 
 color=c(ci)
-if bi<w then vlin y,y+h*2 at 1+x+bi*2
+if bi<w then vlin y,y+h*2 at `ONE+x+bi*2
 :return
-hlin x,x+w*2 at 1+y+(bi-w)*2
+hlin x,x+w*2 at `ONE+y+(bi-w)*2
 :return
 
 
@@ -127,7 +130,7 @@ hlin x,x+w*2 at 1+y+(bi-w)*2
 #----------
 @main
 '--- Main routine
-t=1
+t=`ONE
 :gosub @welcome
 print
 :print "Preparing the kitchen..."
@@ -135,7 +138,7 @@ print
 
 @@menu_loop
 home
-:t=0
+:t=`ZERO
 :gosub @welcome
 gosub @menu
 goto @@menu_loop
@@ -197,7 +200,7 @@ goto @@menu_input
 w=5
 :h=6
 :cn=7
-:ts=0
+:ts=`ZERO
 
 t=rnd(seed):rem predictable sequence
 gosub @setup_goal
@@ -214,13 +217,13 @@ print "entire pattern matches";
 ### - Main loop
 
 @@demo_loop
-for i=1 to 60
-if peek(ky)>=128 then get ch$
+for i=`ONE to 60
+if peek(ky)>=k8 then get ch$
 :return
 
 if i<>20 then @@demo_end_color
 @@demo_new_color
-t=int(rnd(1)*cn)
+t=int(rnd(`ONE)*cn)
 :if t=ci then @@demo_new_color
 ci=t
 :gosub @select_color
@@ -229,7 +232,7 @@ ci=t
 
 if i<>40 then @@demo_end_aim
 @@demo_new_aim
-t=int(rnd(1)*(w+h))
+t=int(rnd(`ONE)*(w+h))
 :if t=bi then @@demo_new_aim
 bi=t
 :gosub @draw_hose
@@ -249,13 +252,13 @@ next i
 '--- Tutorial
 
 ap=ax
-:ax=0
+:ax=`ZERO
 
 w=3
 :h=3
 :cn=6
-:ts=0
-:tx=0
+:ts=`ZERO
+:tx=`ZERO
 x=9-w
 :y=20-h
 :gosub @init_check
@@ -297,15 +300,15 @@ print "by pressing its number";
 @@tutorial_color
 gosub @input_key
 :ci=ch-49
-:if ci<0 or ci>=cn then @@tutorial_color
-cp=not(ci-1)+1
+:if ci<`ZERO or ci>=cn then @@tutorial_color
+cp=not(ci-`ONE)+`ONE
 
 home
 :gosub @draw_color_palette
 :gosub @select_color
 print "Next: press the right arrow"
 print "to see how the candy hose moves."
-bi=0
+bi=`ZERO
 :gosub @init_hose
 :gosub @draw_hose
 
@@ -315,10 +318,10 @@ gosub @input_key
 :if ch<>21 then @@tutorial_aim
 if bi=2 then t$="Keep going until it passes the end..."
 vtab 24
-:htab 1
+:htab `ONE
 :print t$;
 gosub @aim_right
-:if bi<>0 then @@tutorial_aim
+:if bi<>`ZERO then @@tutorial_aim
 
 home
 :gosub @draw_color_palette
@@ -363,7 +366,7 @@ if ch=32 or ch=13 then @@tutorial_bar
 
 t=ch-49
 :rem 1-9
-if t<0 or t>=cn then @play_tutorial
+if t<`ZERO or t>=cn then @play_tutorial
 
 ci=t
 :gosub @select_color
@@ -396,7 +399,7 @@ return
 # use: s() for temporary values
 
 vtab 13
-:htab 1
+:htab `ONE
 print "  Width (2-8): ";w
 print " Height (2-9): ";h
 print "Flavors (2-9): ";cn
@@ -408,9 +411,9 @@ s(0)=w
 :s(1)=h
 :s(2)=cn
 :s(3)=tv
-:ts=0
-:tx=0
-i=0
+:ts=`ZERO
+:tx=`ZERO
+i=`ZERO
 
 @@practice_menu_mark_cursor
 vtab 13+i
@@ -430,14 +433,14 @@ if ch=13 then ch=s(i)+48
 
 n=ch-48
 :rem "0"
-if n<(2 * (i<>3)) or n>(8 + (i<>0)) then @@practice_menu_input
+if n<(2 * (i<>3)) or n>(8 + (i<>`ZERO)) then @@practice_menu_input
 
 s(i)=n
 # unmark old cursor
 htab 16
 :print s(i)
-i=i+1
-:if i>3 then i=0
+i=i+`ONE
+:if i>3 then i=`ZERO
 
 goto @@practice_menu_mark_cursor
 
@@ -472,7 +475,7 @@ goto @@practice_again
 
 gosub @seed_rnd
 
-for r=0 to dn-1
+for r=`ZERO to dn-`ONE
 w=dw(r)
 :h=dh(r)
 :cn=dc(r)
@@ -554,11 +557,11 @@ if ch=82 then gosub @reveal_diffs
 
 t=ch-49
 :rem 1-9
-if t>=0 and t<cn then @@play_color
+if t>=`ZERO and t<cn then @@play_color
 
 t=ch-65
 :rem A-Z
-if t>=0 and t<w+h then @@play_bar
+if t>=`ZERO and t<w+h then @@play_bar
 
 goto @play_game
 :rem other
@@ -578,10 +581,10 @@ bi=t
 @@play_bar_current
 gosub @draw_bar
 vtab 24
-:htab 1
+:htab `ONE
 :call(-868)
 :print "Comparing...      ";
-:htab 1
+:htab `ONE
 :gosub @check_match
 if m then print "progress: ";m;" to go ";
 :htab 24
@@ -589,7 +592,7 @@ if m then print "progress: ";m;" to go ";
 :goto @play_game
 
 gosub @clear_hose
-t=rnd(1)*3
+t=rnd(`ONE)*3
 :inverse
 if t<1 then print "A perfect match!";
 :goto @@round_over
@@ -632,28 +635,32 @@ normal
 @declare_vars
 '--- Declare variables
 
+# constants
+z=0
+:u=1
+:ky=49152
+:k8=128
+
 # pre-declare performance-critical variables
 # for @check_match
-m=0
-:i=0
+m=`ZERO
+:i=`ZERO
 :o=-20
-:j=0
-:a=0
-:w2=0
-:x=0
-:y=0
-:j0=0
-:j1=0
+:j=`ZERO
+:a=`ZERO
+:w2=`ZERO
+:x=`ZERO
+:y=`ZERO
+:j0=`ZERO
+:j1=`ZERO
 :wh=9
 :w=3
 :h=3
 
-ky=49152
-
 cn=6
-tv=0
+tv=`ZERO
 # axis-labeled expert mode
-ax=0
+ax=`ZERO
 
 # predictable rnd() sequence for tutorial
 # Some seeds I liked:
@@ -675,14 +682,14 @@ return
 '--- Initialize game data
 
 #dim ro(24):rem gr mem addr by row
-for i=0 to 7
-:for j=0 to 2
+for i=`ZERO to 7
+:for j=`ZERO to 2
 :ro(i+8*j)=1024+128*i+40*j
 :next j
 :next i
 
 #dim ta(9):rem timer presets
-for i=0 to 9
+for i=`ZERO to 9
 :read ta(i)
 :next i
 
@@ -691,7 +698,7 @@ gosub @init_palette
 #level data
 #dim dw(30):dim dh(30):dim dc(30):dim dt(30)
 read dn
-:for i=0 to dn-1
+:for i=`ZERO to dn-`ONE
 :read dw(i),dh(i),dc(i),dt(i)
 :next
 
@@ -701,8 +708,8 @@ return
 @init_check
 '--- Init check variables
 
-j0=(y+1)/2
-:j1=j0+h-1
+j0=(y+`ONE)/2
+:j1=j0+h-`ONE
 :w2=w*2
 return
 
@@ -716,11 +723,11 @@ return
 # use: i,j indices
 # use: a  temporary value
 
-m=0
+m=`ZERO
 
 :for j=j0 to j1
 a=ro(j)+x
-:for i=a+1 to a+w2 step 2
+:for i=a+`ONE to a+w2 step 2
 m=m+(peek(i)=peek(i+o))
 next
 :next j
@@ -739,14 +746,14 @@ return
 
 for j=j0 to j1
 a=ro(j)+x
-:for i=a+1 to a+w2 step 2
+:for i=a+`ONE to a+w2 step 2
 
 p=peek(i)
 :if p=peek(i+o) then @@diff_next
 poke(i),255
-:for t=1 to 200:next
+:for t=`ONE to 200:next
 :poke(i),p
-if peek(ky)>=128 then return
+if peek(ky)>=k8 then return
 
 @@diff_next
 next i
@@ -759,7 +766,7 @@ next i
 '--- Help text
 
 vtab 22
-:htab 1
+:htab `ONE
 
 if ax then @@help_axes
 call(-868)
@@ -778,7 +785,7 @@ call(-868)
 
 htab x-3
 :print "COL:";
-for i=0 to w-1
+for i=`ZERO to w-`ONE
 :print " ";chr$(65+i);
 :next
 
@@ -788,7 +795,7 @@ print
 
 htab 26-h
 :print "ROW:";
-for i=w to w+h-1
+for i=w to w+h-`ONE
 :print " ";chr$(65+i);
 :next
 
@@ -800,7 +807,7 @@ return
 '--- Abort prompt
 
 vtab 22
-:htab 1
+:htab `ONE
 :call(-868)
 htab 24
 :print "Abandon game?"
@@ -854,8 +861,8 @@ x=9-w
 :wh=w*h
 :m=wh
 :gosub @init_check
-ti=0
-:tx=0
+ti=`ZERO
+:tx=`ZERO
 
 # setup_board
 gr
@@ -869,17 +876,17 @@ x=x+20
 home
 :print "Available flavors:"
 :gosub @draw_color_palette
-cp=1
-:ci=0
+cp=`ONE
+:ci=`ZERO
 :gosub @select_color
 
 gosub @init_hose
-:bp=1
-:bi=0
+:bp=`ONE
+:bi=`ZERO
 :gosub @draw_hose
 
 if ts then color=4
-:hlin 0,39 at 0
+:hlin `ZERO,39 at `ZERO
 
 return
 
@@ -889,10 +896,10 @@ return
 # arg: x,y,w,h GR rect coords
 
 color=15
-hlin x-1,x+w*2+1 at y-1
-hlin x-1,x+w*2+1 at y+h*2+1
-vlin y-1,y+h*2+1 at x-1
-vlin y-1,y+h*2+1 at x+w*2+1
+hlin x-`ONE,x+w*2+`ONE at y-`ONE
+hlin x-`ONE,x+w*2+`ONE at y+h*2+`ONE
+vlin y-`ONE,y+h*2+`ONE at x-`ONE
+vlin y-`ONE,y+h*2+`ONE at x+w*2+`ONE
 :return
 
 #----------
@@ -905,10 +912,10 @@ vlin y-1,y+h*2+1 at x+w*2+1
 vtab 21
 :htab 20
 
-for i=0 to cn-1
+for i=`ZERO to cn-`ONE
 :color=c(i)
 :vlin 37,38 at 20+i*2
-:print " ";i+1;
+:print " ";i+`ONE;
 :next
 
 print
@@ -925,11 +932,11 @@ vtab 21
 
 :htab 21+ci*2
 :inverse
-:print ci+1;
+:print ci+`ONE;
 
 :htab 21+cp*2
 :normal
-:print cp+1;
+:print cp+`ONE;
 
 cp=ci
 :print
@@ -947,14 +954,14 @@ cp=ci
 sn=w+h
 :gosub @shuffle
 
-ci=0
-for i=0 to w+h-1
+ci=`ZERO
+for i=`ZERO to w+h-`ONE
 
 :bi=s(i)
 :gosub @draw_bar
 
-ci=ci+1
-:if ci=cn then ci=0
+ci=ci+`ONE
+:if ci=cn then ci=`ZERO
 
 next i
 
@@ -974,18 +981,18 @@ return
 # mild: 1,3  2,4  3,5  3,9  3,10  3,11  5,7  6,14  12,14
 
 #dim cc(15*5-1)
-for i=0 to 15
-:s(i)=0
+for i=`ZERO to 15
+:s(i)=`ZERO
 :next
 
-for k=1 to 14
+for k=`ONE to 14
 read i,j
 n=s(i)
 :cc(i*5+n)=j
-:s(i)=n+1
+:s(i)=n+`ONE
 n=s(j)
 :cc(j*5+n)=i
-:s(j)=n+1
+:s(j)=n+`ONE
 next k
 
 return
@@ -1001,27 +1008,27 @@ return
 # use: i,j,k general index
 # use: t,a temporary value
 
-m=0
+m=`ZERO
 :vtab 21
 :print "Selecting flavors..."
 
 @@palette_attempt
-m=m+1
+m=m+`ONE
 :if m=3 then print "Taste testing for quality..."
 
 # seed the list of eligible colors
-for n=0 to 13
-:s(n)=n+1
+for n=`ZERO to 13
+:s(n)=n+`ONE
 :next
 
-for ci=cn-1 to 0 step -1
+for ci=cn-`ONE to `ZERO step -1
 if n<=ci then @@palette_attempt
 
 # random pick
-i=rnd(1)*n
+i=rnd(`ONE)*n
 k=s(i)
 :c(ci)=k
-n=n-1
+n=n-`ONE
 :s(i)=s(n)
 
 # eliminate clashing colors
@@ -1030,8 +1037,8 @@ for j=k to k+4
 a=cc(j)
 :t=(not a)*n
 :if t then j=j+5
-for i=t to n-1
-if a=s(i) then n=n-1
+for i=t to n-`ONE
+if a=s(i) then n=n-`ONE
 :s(i)=s(n)
 :i=n
 next i
@@ -1049,12 +1056,12 @@ return
 # use: i,j indices
 # use: t temporary value
 
-for i=0 to sn-1
+for i=`ZERO to sn-`ONE
 :s(i)=i
 :next
 
-for i=sn-1 to 0 step -1
-:j=rnd(1)*i
+for i=sn-`ONE to `ZERO step -1
+:j=rnd(`ONE)*i
 :t=s(i)
 :s(i)=s(j)
 :s(j)=t
@@ -1069,8 +1076,8 @@ return
 # use: i,j indices
 # use: t temporary value
 
-for i=cn-1 to 0 step -1
-:j=rnd(1)*i
+for i=cn-`ONE to `ZERO step -1
+:j=rnd(`ONE)*i
 :t=c(i)
 :c(i)=c(j)
 :c(j)=t
@@ -1089,24 +1096,24 @@ return
 #dim bx(33),by(33)    max (w+h)*2
 
 y1=y-2
-:y0=y1+1
-:t=1+x
-for i=0 to (w-1)*2 step 2
+:y0=y1+`ONE
+:t=`ONE+x
+for i=`ZERO to (w-`ONE)*2 step 2
 bx(i)=t
-:bx(i+1)=t
+:bx(i+`ONE)=t
 by(i)=y0
-:by(i+1)=y1
+:by(i+`ONE)=y1
 t=t+2
 :next
 
-x0=x+w*2+1
-:x1=x0+1
-:t=1+y
-for i=i to (w+h-1)*2 step 2
+x0=x+w*2+`ONE
+:x1=x0+`ONE
+:t=`ONE+y
+for i=i to (w+h-`ONE)*2 step 2
 bx(i)=x0
-:bx(i+1)=x1
+:bx(i+`ONE)=x1
 by(i)=t
-:by(i+1)=t
+:by(i+`ONE)=t
 t=t+2
 :next
 
