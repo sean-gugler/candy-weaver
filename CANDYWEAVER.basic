@@ -280,8 +280,8 @@ print "Above, on the left, you will see"
 print "a tasty target pattern."
 #print "seed ";seed
 gosub @key_continue
-if ch$="r" then seed=seed-1
-:goto @@tutorial_generate
+#if ch$="r" then seed=seed-1
+#:goto @@tutorial_generate
 
 home
 :x=x+20
