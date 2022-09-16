@@ -42,11 +42,10 @@ ch$=""
 
 @@input_wait
 ti=ti+1
-:if ti=ts then 
+:if ti=ts then ti=0
 :color=9
 :plot tx,0
 :tx=tx+1
-:ti=0
 :if tx=40 then return
 
 if peek(ky)<128 then @@input_wait
