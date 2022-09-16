@@ -42,8 +42,14 @@ goto @main
 @input_key
 '--- Input key
 # Does not show a flashing cursor.
+#
+# arg: ts timer speed; higher is slower
+# keep: ti timer increment
+# keep: tx timer bar x-coordinate
+# use: t loop variable
 # return: ch$ string of key that was pressed
 # return: ch apple-ascii value of that key
+
 ch$=""
 :ch=`ZERO
 
@@ -102,6 +108,9 @@ color=15
 #----------
 @aim_left
 '--- Aim hose
+# keep: bi bar index
+# arg: w,h GR rect dimensions
+
 bi=bi-`ONE
 :if bi<`ZERO then bi=w+h-`ONE
 goto @draw_hose
@@ -117,8 +126,9 @@ goto @draw_hose
 @draw_bar
 '--- Draw a single bar
 # arg: bi  bar number from 0 to w+h-1
+#   0..w-1 are vlin, remainder are hlin
 # arg: ci  color index
-# 0..w-1 are vlin, remainder are hlin
+# arg: x,y,w,h GR rect coords
 
 color=c(ci)
 if bi<w then vlin y,y+h*2 at `ONE+x+bi*2
