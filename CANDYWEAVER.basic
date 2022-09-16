@@ -114,11 +114,6 @@ if bi<w then vlin y,y+h*2 at 1+x+bi*2
 hlin x,x+w*2 at 1+y+(bi-w)*2
 :return
 
-#if bi<h then hlin x,x+w*2 at 1+y+bi*2
-#:return
-#vlin y,y+h*2 at 1+x+(bi-h)*2
-#:return
-
 
 #-------------------------------------
 # MAIN GAME MODES
@@ -158,23 +153,11 @@ return
 @menu
 '--- Main menu
 print
-#print "  Watch a [D]emo"
 print " View the [D]emo"
 print " Take the [T]utorial"
-#print " Play the [S]corecard challenge"
-#print "Start the [S]corecard challenge"
-#print " Play for [S]core, win big!"
 print " Play the [P]rogression challenge"
-#print "   Casual [P]lay / practice"
-#print "Weave and [C]hill for practice"
-#print "    Weave [C]asually for practice"
-#print "   Design [C]asual weaves"
-#print "     Play [C]asually, practice"
-#print "  Play to [C]hill or practice"
-#print " Practice [C]ustomized weaves"
 print " Practice [S]pecific weaves"
 print
-#print "What next? ";
 print " Where to? ";
 @@menu_input
 get ch$
