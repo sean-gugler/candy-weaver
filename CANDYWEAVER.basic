@@ -300,17 +300,19 @@ home
 :gosub @draw_color_palette
 :gosub @select_color
 print "Next: press the right arrow"
-print "to move the candy hose."
+print "to see how the candy hose moves."
 bi=0
 :gosub @init_hose
 :gosub @draw_hose
 
+t$="Keep going until it turns the corner..."
 @@tutorial_aim
 gosub @input_key
 :if ch<>21 then @@tutorial_aim
+if bi=2 then t$="Keep going until it passes the end..."
 vtab 24
 :htab 1
-:print "Keep going! Watch how it wraps...";
+:print t$;
 gosub @aim_right
 :if bi<>0 then @@tutorial_aim
 
