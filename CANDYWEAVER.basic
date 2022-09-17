@@ -230,35 +230,41 @@ print "entire pattern matches";
 
 ### - Main loop
 
+ti=30
 @@demo_loop
-for i=`ONE to 60
+for j=`ZERO to mn-1
+if j=13 then gosub @reveal_diffs
+:gosub @reveal_diffs
+:gosub @reveal_diffs
+
+for i=`ONE to ti*3
 if peek(ky)>=k8 then get ch$
 :return
 
-if i<>20 then @@demo_end_color
-@@demo_new_color
-t=int(rnd(`ONE)*cn)
-:if t=ci then @@demo_new_color
-ci=t
+if i<>ti*1 then @@demo_end_color
+if ci<>mc(j) then ci=mc(j)
 :gosub @select_color
 :gosub @draw_hose
 @@demo_end_color
 
-if i<>40 then @@demo_end_aim
-@@demo_new_aim
-t=int(rnd(`ONE)*(w+h))
-:if t=bi then @@demo_new_aim
-bi=t
+if i<>ti*2 then @@demo_end_aim
+if bi<>mb(j) then bi=mb(j)
 :gosub @draw_hose
 @@demo_end_aim
 
-if i<>60 then @@demo_end_stripe
-@@demo_new_stripe
+if i<>ti*3 then @@demo_end_stripe
 gosub @draw_bar
 @@demo_end_stripe
 
 next i
-:goto @@demo_loop
+:next j
+
+# clear work area, restart demo sequence
+color=0
+:for i=y to y+h*2
+:hlin x,x+w*2 at i
+:next
+goto @@demo_loop
 
 
 #----------
@@ -696,6 +702,7 @@ dim s(25):rem shuffle sequence
 dim cc(15*5-1):rem color clash table
 dim ta(9):rem timer presets
 dim dw(30),dh(30),dc(30),dt(30):rem level data
+dim mc(30),mb(30):rem demo data
 
 return
 
@@ -717,8 +724,15 @@ for i=`ZERO to 9
 
 gosub @init_palette
 
+#demo data
+#dim mc(30),mb(30)
+read mn
+:for i=`ZERO to mn-`ONE
+:read mc(i),mb(i)
+:next
+
 #level data
-#dim dw(30):dim dh(30):dim dc(30):dim dt(30)
+#dim dw(30),dh(30),dc(30),dt(30)
 read dn
 :for i=`ZERO to dn-`ONE
 :read dw(i),dh(i),dc(i),dt(i)
@@ -986,8 +1000,8 @@ ci=ci+`ONE
 :if ci=cn then ci=`ZERO
 
 next i
-
 gosub @shuffle_colors
+
 return
 
 #----------
@@ -1259,6 +1273,14 @@ data 0,90,80,70,60,50,40,30,20,10
 # color clash
 data 5,10 , 7,10 , 7,11 , 7,14 , 10,11
 data 1,3 , 2,4 , 3,5 , 3,9 , 3,10 , 3,11 , 5,7 , 6,14 , 12,14
+
+# demo sequence
+data 22
+data 4,6 , 2,10 , 3,3 , 3,0, 0,0
+data 6,9 , 4,1 , 1,5 , 6,7 , 2,7
+data 3,8 , 0,4 , 5,2
+data 1,5 , 6,9 , 4,1 , 2,7 , 3,8
+data 0,4 , 0,4 , 0,4 , 0,4
 
 # campaign sequence
 data 29
