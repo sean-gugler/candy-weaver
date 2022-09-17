@@ -587,23 +587,24 @@ if ch=82 then gosub @reveal_diffs
 
 t=ch-49
 :rem 1-9
-if t>=`ZERO and t<cn then @@play_color
+if t>=`ZERO and t<cn then @play_color
 
 t=ch-65
 :rem A-Z
-if t>=`ZERO and t<w+h then @@play_bar
+if t>=`ZERO and t<w+h then @play_bar
 
 next q
 :rem other
 
-@@play_color
+
+@play_color
 '- choose color
 ci=t
 :gosub @select_color
 :gosub @draw_hose
 :next q
 
-@@play_bar
+@play_bar
 '- choose line
 bi=t
 :gosub @draw_hose
@@ -812,7 +813,7 @@ next i
 vtab 22
 :htab `ONE
 
-if ax then @@help_axes
+if ax then @help_axes
 call(`ERASE_LINE)
 :print " Aim: left/right";
 htab 24
@@ -822,7 +823,7 @@ call(`ERASE_LINE)
 return
 
 
-@@help_axes
+@help_axes
 # arg: w,h patch size
 call(`ERASE_LINE)
 :print " Press a letter";
@@ -933,6 +934,10 @@ if ts then color=4
 :hlin `ZERO,39 at `ZERO
 
 return
+
+@setup_goal_end
+# extra +100 line number increment allows above gosub to
+# search forward at runtime instead of from top of file.
 
 #----------
 @draw_border
