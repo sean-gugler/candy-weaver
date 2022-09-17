@@ -15,6 +15,7 @@ t4$="------------------"
 `ZERO=z
 `ONE=u
 `INF=f
+`ERASE_LINE=e
 
 #----------
 #TESTS
@@ -607,7 +608,7 @@ bi=t
 gosub @draw_bar
 vtab 24
 :htab `ONE
-:call(-868)
+:call(`ERASE_LINE)
 :print "Comparing...      ";
 :htab `ONE
 :gosub @check_match
@@ -660,16 +661,17 @@ normal
 @declare_vars
 '--- Declare variables
 
-# constants
+'- constants
 z=0
 :u=1
-:ky=49152
-:k8=128
-:f=1e30
+ky=49152:rem peek KEYBOARD
+k8=128
+e=-868:rem call ERASE_LINE
+f=1e30:rem infinity
 # BASIC mantissa loses precision around 1e10; adding 1 no longer increases the value.
 # Limit of representation is around 1e38. I chose 1e30 as a safe "infinite" ceiling.
 
-# pre-declare performance-critical variables
+'- performance-critical variables
 # for @check_match
 m=`ZERO
 :i=`ZERO
@@ -805,18 +807,18 @@ vtab 22
 :htab `ONE
 
 if ax then @@help_axes
-call(-868)
+call(`ERASE_LINE)
 :print " Aim: left/right";
 htab 24
 :print "[T]oggle labels"
-call(-868)
+call(`ERASE_LINE)
 :print " Lay candy: Space";
 return
 
 
 @@help_axes
 # arg: w,h patch size
-call(-868)
+call(`ERASE_LINE)
 :print " Press a letter";
 
 htab x-3
@@ -826,7 +828,7 @@ for i=`ZERO to w-`ONE
 :next
 
 print
-:call(-868)
+:call(`ERASE_LINE)
 :print " to fast-stripe";
 
 htab 27-h
@@ -844,10 +846,10 @@ return
 
 vtab 22
 :htab `ONE
-:call(-868)
+:call(`ERASE_LINE)
 htab 24
 :print "Abandon game?"
-call(-868)
+call(`ERASE_LINE)
 return
 
 #----------
