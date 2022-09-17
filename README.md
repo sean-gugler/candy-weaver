@@ -28,7 +28,9 @@ You can also download either of those files to use with your favorite local emul
 
 # Behind The Scenes
 
-Time spent: 22 hours development + 4 hours QA
+Time spent:
+* 30 hours development spread over 6 weeks
+* 4 hours QA and playtesting
 
 Tools used:
 * [AppleWin 1.30.8.0](https://github.com/AppleWin/AppleWin)
@@ -42,3 +44,5 @@ References consulted:
 * https://github.com/tilleul/apple2/tree/master/applesoft/nfs
 
 Yes, I wrote my own simplistic text pre-processor for BASIC. I wanted to use labels instead of line numbers, unpublished code comments, and conditionally-excluded blocks. 20 minutes of Python saved me hours vs trying to develop exclusively in proper Applesoft syntax.
+
+I also put a crude dependency-graph generator into the pre-processor to help me study my program's flow and target certain sections for performance tweaks. You can view the results with any [Graphviz](https://graphviz.org/) implementation, such as https://viz-js.com/
