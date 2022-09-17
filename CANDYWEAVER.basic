@@ -217,7 +217,8 @@ w=5
 :ts=`ZERO
 
 t=rnd(seed):rem predictable sequence
-gosub @setup_goal
+sc=0
+:gosub @setup_goal
 
 vtab 21
 :print "Choose a flavor,  "
@@ -236,24 +237,18 @@ if peek(ky)>=k8 then get ch$
 :return
 
 if i<>20 then @@demo_end_color
-@@demo_new_color
-t=int(rnd(`ONE)*cn)
-:if t=ci then @@demo_new_color
-ci=t
+j=int(rnd(`ONE)*sn)
+for ci=j+cn to cn step -cn:next
 :gosub @select_color
 :gosub @draw_hose
 @@demo_end_color
 
 if i<>40 then @@demo_end_aim
-@@demo_new_aim
-t=int(rnd(`ONE)*(w+h))
-:if t=bi then @@demo_new_aim
-bi=t
+bi=s(j)
 :gosub @draw_hose
 @@demo_end_aim
 
 if i<>60 then @@demo_end_stripe
-@@demo_new_stripe
 gosub @draw_bar
 @@demo_end_stripe
 
@@ -309,7 +304,8 @@ gosub @key_continue
 
 home
 print "First: select"
-gosub @draw_color_palette
+gosub @shuffle_colors
+:gosub @draw_color_palette
 print "a flavor of candy"
 print "by pressing its number";
 
@@ -471,7 +467,8 @@ w=s(0)
 
 @practice_round
 '--- Play a practice round
-gosub @setup_goal
+sc=1
+:gosub @setup_goal
 :gosub @draw_help
 gosub @play_game
 :if tx=-1 then return
@@ -508,7 +505,8 @@ normal
 :gosub @key_continue
 
 @@setup_board
-gosub @setup_goal
+sc=1
+:gosub @setup_goal
 :gosub @draw_help
 gosub @play_game
 :if tx=-1 then return
@@ -867,6 +865,7 @@ i=rnd(-1*(peek(78)+256*peek(79)))
 '--- Layout a new weave
 # arg: w,h width and height of weave
 # arg: cn number of colors
+# arg: sc whether to shuffle colors
 # arg: ts timer speed
 # return: x,y position of player's weave
 # init: ti timer counter
@@ -892,6 +891,7 @@ gr
 :gosub @gen_palette
 :gosub @draw_border
 :gosub @draw_patch
+if sc then gosub @shuffle_colors
 
 x=x+20
 :gosub @draw_border
@@ -987,7 +987,6 @@ ci=ci+`ONE
 
 next i
 
-gosub @shuffle_colors
 return
 
 #----------
