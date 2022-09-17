@@ -322,7 +322,9 @@ print "by pressing its number";
 
 @@tutorial_color
 gosub @input_key
-:ci=ch-49
+:if ch=27 then return
+:rem esc
+ci=ch-49
 :if ci<`ZERO or ci>=cn then @@tutorial_color
 cp=not(ci-`ONE)+`ONE
 
@@ -339,7 +341,9 @@ bp=`ONE
 t$="Keep going until it turns the corner..."
 @@tutorial_aim
 gosub @input_key
-:if ch<>21 then @@tutorial_aim
+:if ch=27 then return
+:rem esc
+if ch<>21 then @@tutorial_aim
 if bi=2 then t$="Keep going until it passes the end..."
 vtab 24
 :htab `ONE
@@ -356,6 +360,8 @@ print "Press space to lay down a candy stripe."
 
 @@tutorial_stripe
 gosub @input_key
+:if ch=27 then return
+:rem esc
 if ch=11 or ch=8 then gosub @aim_left
 if ch=10 or ch=21 then gosub @aim_right
 if ch<>32 then @@tutorial_stripe
@@ -373,9 +379,8 @@ gosub @draw_color_palette
 @play_tutorial
 '--- Tutorial play loop
 gosub @input_key
-
-if ch=83 then return
-:rem debug [S]kip
+:if ch=27 then return
+:rem esc
 
 if ch=11 or ch=8 then gosub @aim_left
 :goto @play_tutorial
