@@ -817,7 +817,7 @@ return
 @@help_axes
 # arg: w,h patch size
 call(-868)
-:print "Press a letter";
+:print " Press a letter";
 
 htab x-3
 :print "COL:";
@@ -827,9 +827,9 @@ for i=`ZERO to w-`ONE
 
 print
 :call(-868)
-:print "to fast-stripe";
+:print " to fast-stripe";
 
-htab 26-h
+htab 27-h
 :print "ROW:";
 for i=w to w+h-`ONE
 :print " ";chr$(65+i);
