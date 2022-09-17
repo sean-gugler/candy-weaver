@@ -152,8 +152,7 @@ print
 :gosub @init_data
 
 @@menu_loop
-home
-:t=`ZERO
+t=`ZERO
 :gosub @welcome
 gosub @menu
 goto @@menu_loop
@@ -326,10 +325,10 @@ gosub @input_key
 :rem esc
 ci=ch-49
 :if ci<`ZERO or ci>=cn then @@tutorial_color
-cp=not(ci-`ONE)+`ONE
 
 home
 :gosub @draw_color_palette
+:cp=not ci
 :gosub @select_color
 print "Next: press the right arrow"
 print "to see how the candy hose moves."
@@ -617,11 +616,13 @@ vtab 24
 :print "Comparing...      ";
 :htab `ONE
 :gosub @check_match
+
 if m then print "progress: ";m;" to go ";
 :htab 24
 :print "[R]eveal diffs";
 :next q
 
+#else
 gosub @clear_hose
 t=rnd(`ONE)*3
 :inverse
@@ -943,7 +944,7 @@ hlin x-`ONE,x+w*2+`ONE at y-`ONE
 hlin x-`ONE,x+w*2+`ONE at y+h*2+`ONE
 vlin y-`ONE,y+h*2+`ONE at x-`ONE
 vlin y-`ONE,y+h*2+`ONE at x+w*2+`ONE
-:return
+return
 
 #----------
 @draw_color_palette
@@ -1273,15 +1274,16 @@ return
 #-------------------------------------
 # GAME DATA
 #-------------------------------------
+@data
 
-# timer presets
+'- timer presets
 data 0,90,80,70,60,50,40,30,20,10
 
-# color clash
+'- clashing color pairs
 data 5,10 , 7,10 , 7,11 , 7,14 , 10,11
 data 1,3 , 2,4 , 3,5 , 3,9 , 3,10 , 3,11 , 5,7 , 6,14 , 12,14
 
-# demo sequence
+'- demo sequence
 data 22
 data 4,6 , 2,10 , 3,3 , 3,0, 0,0
 data 6,9 , 4,1 , 1,5 , 6,7 , 2,7
@@ -1289,7 +1291,7 @@ data 3,8 , 0,4 , 5,2
 data 1,5 , 6,9 , 4,1 , 2,7 , 3,8
 data 0,4 , 0,4 , 0,4 , 0,4
 
-# campaign sequence
+'- campaign sequence
 data 29
 data 3,3,6,0 , 4,4,8,0 , 5,4,9,0 , 3,3,6,50
 data 5,3,8,0 , 7,3,9,0 , 8,4,7,0 , 5,4,8,60
