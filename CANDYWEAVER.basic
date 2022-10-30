@@ -461,7 +461,7 @@ if ch=13 then ch=s(i)+48
 
 n=ch-48
 :rem "0"
-if n<(2 * (i<>3)) or n>(8 + (i<>`ZERO)) then @@practice_menu_input
+if n<(2 * (i<>3)) or n>(wm + (i<>`ZERO)) then @@practice_menu_input
 
 s(i)=n
 # unmark old cursor
@@ -590,8 +590,11 @@ t=ch-49
 if t>=`ZERO and t<cn then @play_color
 
 t=ch-65
-:rem A-Z
-if t>=`ZERO and t<w+h then @play_bar
+:rem A-Q
+if t>=`ZERO and t<w then @play_bar
+t=t-wm
+:if t>=`ZERO and t<h then t=t+w
+:goto @play_bar
 
 next q
 :rem other
@@ -698,6 +701,9 @@ cn=6
 tv=`ZERO
 # axis-labeled expert mode
 ax=`ZERO
+
+# width-max
+wm=8
 
 # predictable rnd() sequence for tutorial
 # Some seeds I liked:
@@ -840,7 +846,7 @@ print
 
 htab 27-h
 :print "ROW:";
-for i=w to w+h-`ONE
+for i=wm to wm+h-`ONE
 :print " ";chr$(65+i);
 :next
 
@@ -900,7 +906,7 @@ i=rnd(-1*(peek(78)+256*peek(79)))
 # init: bp previously selected bar (index)
 
 # max values allowed:
-# w=8, h=9, cn=9
+# w=wm, h=9, cn=9
 x=9-w
 :y=20-h
 :wh=w*h
