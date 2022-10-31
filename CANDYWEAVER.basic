@@ -4,7 +4,7 @@ gosub @declare_vars
 'licensed under CC BY-NC-SA 4.0
 
 t1$="Candy Weaver"
-t2$="Version 1.0.2 2022-09-17"
+t2$="Version 1.1.0 2022-10-31"
 t3$="by Sean Gugler"
 t4$="------------------"
 

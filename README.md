@@ -29,8 +29,8 @@ You can also download either of those files to use with your favorite local emul
 # Behind The Scenes
 
 Time spent:
-* 30 hours development spread over 6 weeks
-* 4 hours QA and playtesting
+* 40 hours development spread over 3 months
+* 6 hours QA and playtesting
 
 Tools used:
 * [AppleWin 1.30.8.0](https://github.com/AppleWin/AppleWin)
