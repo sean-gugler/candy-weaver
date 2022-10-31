@@ -528,10 +528,12 @@ if tx<>40 then @@next_round
 #print "final score: ";m
 print "Keep practicing, you can do it!"
 print
+:htab 27
 :print "Press ESC";
 :ts=0
 @@challenge_fail
-gosub @input_key
+gosub @reveal_diffs
+:if peek(ky)>=k8 then gosub @input_key
 if ch<>27 then @@challenge_fail
 return
 
