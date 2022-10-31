@@ -597,7 +597,7 @@ if ch=84 then ti=ti+4
 :next q
 :rem toggle labels
 
-if ts and ch=82 then gosub @reveal_diffs
+if ch=82 then gosub @reveal_diffs
 :next q
 :rem reveal diffs
 
