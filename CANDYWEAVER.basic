@@ -56,7 +56,7 @@ ch$=""
 
 for t=`ZERO to `INF
 ti=ti+`ONE
-:if ti=ts then ti=`ZERO
+:if ts and ti>=ts then ti=ti-ts
 :color=9
 :plot tx,`ZERO
 :tx=tx+`ONE
@@ -560,28 +560,32 @@ return
 for q=`ZERO to `INF
 
 gosub @input_key
+ti=ti+7
 if tx=40 then @@play_timeout
 
 if ch=27 then @@ask_abort
 :rem esc
 
 if ch=11 or ch=8 then gosub @aim_left
+:ti=ti+2
 :next q
 :rem left
 
 if ch=10 or ch=21 then gosub @aim_right
+:ti=ti+2
 :next q
 :rem right
 
 if ch=32 or ch=13 then @@play_bar_current
 :rem space, return
 
-if ch=84 then ax=not ax
+if ch=84 then ti=ti+4
+:ax=not ax
 :gosub @draw_help
 :next q
 :rem toggle labels
 
-if ch=82 then gosub @reveal_diffs
+if ts and ch=82 then gosub @reveal_diffs
 :next q
 :rem reveal diffs
 
@@ -602,7 +606,8 @@ next q
 
 @play_color
 '- choose color
-ci=t
+ti=ti+4
+:ci=t
 :gosub @select_color
 :gosub @draw_hose
 :next q
@@ -610,9 +615,13 @@ ci=t
 @play_bar
 '- choose line
 bi=t
+:ti=ti+5
 :gosub @draw_hose
 
 @@play_bar_current
+# 2x2 ti += 7
+# 8x9 ti += 57
+ti=ti+3+(w*h*3/4)
 gosub @draw_bar
 vtab 24
 :htab `ONE
@@ -643,6 +652,7 @@ gosub @draw_abort
 gosub @input_key
 if tx=40 then @@play_timeout
 if ch=78 or ch=27 then gosub @draw_help
+:ti=ti+3
 :next q
 :rem [N]o
 if ch=89 then tx=-1
@@ -651,7 +661,8 @@ if ch=89 then tx=-1
 :rem [Y]es
 if ch=83 then return
 :rem debug [S]kip
-goto @@input_abort
+ti=ti+3
+:goto @@input_abort
 
 @@play_timeout
 home
