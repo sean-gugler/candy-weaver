@@ -536,17 +536,29 @@ next
 
 
 # Challenge complete
-text
+gr
 :home
-:inverse
-t$="Congratulations!":gosub @print_centered
-normal
-:vtab 4
-:print "You've woven all the candy"
-print
-:print "you are a master candy weaver!"
-gosub @key_continue
-return
+inverse
+:t$="Congratulations!":gosub @print_centered
+:normal
+print "You've woven all the candy"
+print "you are a master candy weaver!"
+print "(press space to come back to earth)";
+
+@@victory
+if peek(ky)>=k8 then get ch$
+:return
+
+color=rnd(1)*14+1
+:t=int(rnd(1)*19)*2+1
+
+if rnd(1)<.5 then @@victory_2
+hlin `ZERO,38 at t
+:goto @@victory
+
+@@victory_2
+vlin `ZERO,38 at t
+:goto @@victory
 
 
 #----------
