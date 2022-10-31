@@ -579,7 +579,7 @@ if ch=32 or ch=13 then @@play_bar_current
 if ch=84 then ax=not ax
 :gosub @draw_help
 :next q
-:rem toggle expert
+:rem toggle labels
 
 if ch=82 then gosub @reveal_diffs
 :next q
@@ -699,7 +699,7 @@ m=`ZERO
 
 cn=6
 tv=`ZERO
-# axis-labeled expert mode
+# axis labels visible
 ax=`ZERO
 
 # width-max
