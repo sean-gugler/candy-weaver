@@ -526,8 +526,13 @@ gosub @play_game
 
 if tx<>40 then @@next_round
 #print "final score: ";m
-print "Better luck next time!"
-gosub @key_continue
+print "Keep practicing, you can do it!"
+print
+:print "Press ESC";
+:ts=0
+@@challenge_fail
+gosub @input_key
+if ch<>27 then @@challenge_fail
 return
 
 @@next_round
