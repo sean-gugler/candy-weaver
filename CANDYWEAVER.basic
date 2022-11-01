@@ -509,6 +509,10 @@ w=dw(r)
 :cn=dc(r)
 :ts=dt(r)
 
+home
+:print ds$(r);
+:gosub @key_continue
+
 if not ts then @@setup_board
 home
 :flash
@@ -548,9 +552,9 @@ gr
 inverse
 :t$="Congratulations!":gosub @print_centered
 :normal
-print "You've woven all the candy"
-print "you are a master candy weaver!"
-print "(press space to come back to earth)";
+print "The celebration lasts for days, and"
+print "showers our champion with candy praise"
+print "(press space to rest on your laurels)";
 
 @@victory
 if peek(ky)>=k8 then get ch$
@@ -746,7 +750,7 @@ dim c(15):rem color palette
 dim s(25):rem shuffle sequence
 dim cc(15*5-1):rem color clash table
 dim ta(9):rem timer presets
-dim dw(30),dh(30),dc(30),dt(30):rem level data
+dim dw(30),dh(30),dc(30),dt(30),ds$(30):rem level data
 dim mc(30),mb(30):rem demo data
 
 return
@@ -780,7 +784,7 @@ read mn
 #dim dw(30),dh(30),dc(30),dt(30)
 read dn
 :for i=`ZERO to dn-`ONE
-:read dw(i),dh(i),dc(i),dt(i)
+:read dw(i),dh(i),dc(i),dt(i),ds$(i)
 :next
 
 return
@@ -1334,10 +1338,42 @@ data 0,4 , 0,4 , 0,4 , 0,4
 
 '- campaign sequence
 data 25
-data 5,3,6,0 , 6,3,6,0 , 7,3,6,0 , 4,3,6,70
-data 3,4,6,0 , 3,6,6,0 , 3,8,6,0 , 3,4,6,70
-data 5,5,5,0 , 6,6,6,0 , 7,7,7,0 , 4,4,4,60
-data 8,4,9,0 , 4,8,9,0 , 4,4,8,40
-data 8,6,2,0 , 6,9,2,0 , 8,9,2,0 , 5,6,2,90
-data 7,8,5,0 , 7,8,7,0 , 7,8,9,0
-data 5,6,9,60 , 3,3,6,20 , 8,9,9,0
+
+# WAVE 1
+data 5,3,6,0,"Meet Mr. Wyde-Lowe, the local dandy.    Sideways is how he likes his candy!"
+data 6,3,6,0,"A very good start. But now he wants moreso make him a wider one than before.
+data 7,3,6,0,"Wider! Wider! And wider still!          Surely then he will have his fill."
+data 4,3,6,70,"For dear Mr. Wyde-Lowe, a final request:A quick little one to give to his guest."
+
+# WAVE 2
+data 3,4,6,0,"The Lady Hightower is rather impressed. Can you make a tall one unlike the rest?"
+data 3,6,6,0,"Not a bad start, but she has in mind    A weave of the taller and tallerer kind!"
+data 3,8,6,0,"Splendid! This candy delights her so.   She wonders aloud, how high can you go?"
+data 3,4,6,70,"The lady has suddenly one final thought:A gift for my nephew! I almost forgot."
+
+# WAVE 3
+data 5,5,5,0,"Dismay! Nephew Squarejaw cannot abide   lopsided candy too long on one side."
+data 6,6,6,0,"Squarejaw's gaze remains rather tough.  That weave was simply not big enough."
+data 7,7,7,0,"Greedy desires now show in his grin;    Bigger and bigger ones lift up his chin!"
+data 4,4,4,60,"Cracking his knuckles, Squarejaw dares: how fast can you assemble these squares?"
+
+# WAVE 4
+data 8,4,9,0,"The Rainbow Twins rush up with demands. Ferrari: a low one made by your hands!"
+data 4,8,9,0,"The twins can never seem to agree.      Rocket: a towering candy for me!"
+data 4,4,8,40,"Their tempers erupt over which is best. Make them a compromise! Put it to rest!"
+
+# WAVE 5
+data 8,6,2,0,"Pacified, they have a riddle for you.   Do you know how to make one with two?"
+data 6,9,2,0,"By now you probably know what is next.  Flip it on end before we get vexed!"
+data 8,9,2,0,"To finish off the riddle we've spun:    Do both shapes together; two into one."
+data 5,6,2,90,"Leader McGrimly now begs for your skillson a serious task. Work fast, no frills!"
+
+# WAVE 6
+data 7,8,5,0,"Our candy dome is under attack!         Make a big net so we can fight back."
+data 7,8,7,0,"The Sweet-Tooth, alas, evaded our net.  We need to weave in more flavors, I bet."
+data 7,8,9,0,"Use all the flavors, spare no expense!  Our situation is getting intense."
+data 5,6,9,60,"Oh no! It ate a big hole in the dome!   Weave like the wind and rescue our home!"
+data 3,3,6,20,"Is there no end to this candy disaster? Hurry, scurry! Weave faster and faster!"
+
+# WAVE 7
+data 8,9,9,0,"The creature is gone - the day is won!  A victory banner we need; just for fun."
