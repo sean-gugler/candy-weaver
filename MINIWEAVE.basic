@@ -1,0 +1,721 @@
+gosub @declare_vars
+
+'Copyright 2022 by Sean Gugler
+'licensed under CC BY-NC-SA 4.0
+
+'Mini-Weave: Just the random mode from Candy Weaver
+'Version 1.2.0 2022-11-02
+
+`ZERO=z
+`ONE=u
+`INF=f
+`AGAIN=ag
+`ERASE_LINE=e
+
+goto @main
+
+
+#-------------------------------------
+# HIGH-PERFORMANCE SUBROUTINES
+#-------------------------------------
+
+#----------
+@input_key
+'--- Input key
+# Does not show a flashing cursor.
+#
+# use: t loop variable
+# return: ch$ string of key that was pressed
+# return: ch apple-ascii value of that key
+
+ch$=""
+:ch=`ZERO
+
+for t=`ZERO to `INF
+:if peek(ky)<k8 then next
+get ch$
+:ch = asc(ch$)
+:return
+
+#----------
+@draw_hose
+'--- Draw colored hose
+# arg: bi bar index from 0 to w+h-1
+# arg: bx(),by()   pre-calculated plot coordinates for hose
+# keep: bp previous bar index
+# use: t temporary value
+
+#do not check bp; that would prevent @select_color from working properly
+#if bi=bp then return
+
+gosub @clear_hose
+
+:bp=bi
+:color=c(ci)
+
+:t=bi+bi
+:plot bx(t),by(t)
+:t=t+`ONE
+:plot bx(t),by(t)
+:return
+
+#----------
+@clear_hose
+'--- Clear hose
+# arg: bp previous bar index from 0 to w+h-1
+# arg: bx(),by()   pre-calculated plot coordinates for hose
+# use: t temporary value
+
+color=15
+:t=bp+bp
+:plot bx(t),by(t)
+
+:color=`ZERO
+:t=t+`ONE
+:plot bx(t),by(t)
+
+:return
+
+#----------
+@aim_left
+'--- Aim hose
+# keep: bi bar index
+# arg: w,h GR rect dimensions
+
+bi=bi-`ONE
+:if bi<`ZERO then bi=w+h-`ONE
+goto @draw_hose
+# 'goto N' = 'gosub N:return'
+
+@aim_right
+bi=bi+`ONE
+:if bi=w+h then bi=`ZERO
+goto @draw_hose
+# 'goto N' = 'gosub N:return'
+
+#----------
+@draw_bar
+'--- Draw a single bar
+# arg: bi  bar number from 0 to w+h-1
+#   0..w-1 are vlin, remainder are hlin
+# arg: ci  color index
+# arg: x,y,w,h GR rect coords
+
+color=c(ci)
+if bi<w then vlin y,y+h*2 at `ONE+x+bi*2
+:return
+hlin x,x+w*2 at `ONE+y+(bi-w)*2
+:return
+
+
+#-------------------------------------
+# MAIN GAME
+#-------------------------------------
+
+#----------
+@main
+'--- Main routine
+print "Preparing the kitchen..."
+:gosub @init_data
+:gosub @seed_rnd
+
+gosub @randomized
+text
+:home
+:end
+
+#----------
+@randomized
+'--- Endless randomized rounds
+
+w=int(rnd(1)*7+2)
+h=int(rnd(1)*8+2)
+cn=int(rnd(1)*8+2)
+
+gosub @setup_goal
+:gosub @draw_help
+gosub @play_game
+
+vtab 24
+:htab 24
+:print "Another round?";
+@@ask_another
+get ch$
+if ch$="Y" or ch=13 then @randomized
+if ch$="N" or ch=27 then return
+goto @@ask_another
+
+
+#----------
+@play_game
+'--- Main game loop
+# use: c$ keyboard input
+# use: ci color index
+# use: bi bar index, @draw_bar
+# use: t temporary value
+
+for q=`ZERO to `INF
+
+gosub @input_key
+
+if ch=27 then @@ask_abort
+:rem esc
+
+if ch=11 or ch=8 then gosub @aim_left
+:next q
+:rem left
+
+if ch=10 or ch=21 then gosub @aim_right
+:next q
+:rem right
+
+if ch=32 or ch=13 then @@play_bar_current
+:rem space, return
+
+if ch=84 then ax=not ax
+:gosub @draw_help
+:next q
+:rem toggle labels
+
+if ch=82 then gosub @reveal_diffs
+:next q
+:rem reveal diffs
+
+t=ch-49
+:rem 1-9
+if t>=`ZERO and t<cn then @play_color
+
+t=ch-65
+:rem A-Q
+if t>=`ZERO and t<w then @play_bar
+t=t-wm
+:if t>=`ZERO and t<h then t=t+w
+:goto @play_bar
+
+next q
+:rem other
+
+
+@play_color
+'- choose color
+ci=t
+:gosub @select_color
+:gosub @draw_hose
+:next q
+
+@play_bar
+'- choose line
+bi=t
+:gosub @draw_hose
+
+@@play_bar_current
+gosub @draw_bar
+vtab 24
+:htab `ONE
+:call(`ERASE_LINE)
+:print "Comparing...      ";
+:htab `ONE
+:gosub @check_match
+
+if m then print "progress: ";m;" to go ";
+:htab 24
+:print "[R]eveal diffs";
+:next q
+
+#else
+gosub @clear_hose
+t=rnd(`ONE)*3
+:inverse
+if t<1 then print "A perfect match!";
+:goto @@round_over
+if t<2 then print "Yes! Delicious!";
+:goto @@round_over
+print "Completed! (Yum)";
+:goto @@round_over
+
+@@ask_abort
+gosub @draw_abort
+@@input_abort
+gosub @input_key
+if ch=78 or ch=27 then gosub @draw_help
+:next q
+:rem [N]o
+if ch=89 then home
+:goto @@round_over
+:rem [Y]es
+if ch=83 then return
+:rem debug [S]kip
+:goto @@input_abort
+
+@@round_over
+normal
+:return
+
+
+#-------------------------------------
+# LOWER-PERFORMANCE SUBROUTINES
+#-------------------------------------
+
+#----------
+@declare_vars
+'--- Declare variables
+
+'- constants
+z=0
+:u=1
+ky=49152:rem peek KEYBOARD
+k8=128
+e=-868:rem call ERASE_LINE
+f=1e30:rem infinity
+# BASIC mantissa loses precision around 1e10; adding 1 no longer increases the value.
+# Limit of representation is around 1e38. I chose 1e30 as a safe "infinite" ceiling.
+
+'- performance-critical variables
+# for @check_match
+m=`ZERO
+:i=`ZERO
+:o=-20
+:j=`ZERO
+:a=`ZERO
+:w2=`ZERO
+:x=`ZERO
+:y=`ZERO
+:j0=`ZERO
+:j1=`ZERO
+:wh=9
+:w=3
+:h=3
+
+cn=6
+# axis labels visible
+ax=`ZERO
+
+# width-max
+wm=8
+
+dim ro(24):rem gr mem addr by row
+dim bx(33),by(33):rem hose coordinates
+dim c(15):rem color palette
+dim s(25):rem shuffle sequence
+dim cc(15*5-1):rem color clash table
+
+return
+
+#----------
+@init_data
+'--- Initialize game data
+
+#dim ro(24):rem gr mem addr by row
+for i=`ZERO to 7
+:for j=`ZERO to 2
+:ro(i+8*j)=1024+128*i+40*j
+:next j
+:next i
+
+gosub @init_palette
+
+return
+
+#----------
+@init_check
+'--- Init check variables
+
+j0=(y+`ONE)/2
+:j1=j0+h-`ONE
+:w2=w*2
+return
+
+#----------
+@check_match
+'--- Check for match
+# arg: x,y,w,h GR rect coords
+# arg: ro() array of memory address for each row start
+# arg: o constant -20 to find "other" pattern area
+# return: m number remaining
+# use: i,j indices
+# use: a  temporary value
+
+m=`ZERO
+
+:for j=j0 to j1
+a=ro(j)+x
+:for i=a+`ONE to a+w2 step 2
+m=m+(peek(i)=peek(i+o))
+next
+:next j
+
+m=wh-m
+return
+
+#----------
+@reveal_diffs
+'--- Reveal differences
+# arg: x,y,w,h GR rect coords
+# arg: ro() array of memory address for each row start
+# arg: o constant -20 to find "other" pattern area
+# use: i,j indices
+# use: p  temporary value
+
+for j=j0 to j1
+a=ro(j)+x
+:for i=a+`ONE to a+w2 step 2
+
+p=peek(i)
+:if p=peek(i+o) then @@diff_next
+poke(i),255
+:for t=`ONE to 200:next
+:poke(i),p
+if peek(ky)>=k8 then return
+
+@@diff_next
+next i
+:next j
+:return
+
+
+#----------
+@draw_help
+'--- Help text
+
+vtab 22
+:htab `ONE
+
+if ax then @help_axes
+call(`ERASE_LINE)
+:print " Aim: left/right";
+htab 24
+:print "[T]oggle labels"
+call(`ERASE_LINE)
+:print " Lay candy: Space";
+return
+
+
+@help_axes
+# arg: w,h patch size
+call(`ERASE_LINE)
+:print " Press a letter";
+
+htab x-3
+:print "COL:";
+for i=`ZERO to w-`ONE
+:print " ";chr$(65+i);
+:next
+
+print
+:call(`ERASE_LINE)
+:print " to fast-stripe";
+
+htab 27-h
+:print "ROW:";
+for i=wm to wm+h-`ONE
+:print " ";chr$(65+i);
+:next
+
+return
+
+
+#----------
+@draw_abort
+'--- Abort prompt
+
+vtab 22
+:htab `ONE
+:call(`ERASE_LINE)
+htab 24
+:print "Give up?"
+call(`ERASE_LINE)
+return
+
+#----------
+@seed_rnd
+'--- seed "rnd" from human reaction time
+# These locations are a 16-byte counter
+# incremented by the system during get$
+i=rnd(-1*(peek(78)+256*peek(79)))
+:return
+
+#----------
+@setup_goal
+'--- Layout a new weave
+# arg: w,h width and height of weave
+# arg: cn number of colors
+# return: x,y position of player's weave
+# init: ci selected color (index into palette)
+# init: cp previously selected color (index)
+# init: bi selected bar (stripe index)
+# init: bp previously selected bar (index)
+
+# max values allowed:
+# w=wm, h=9, cn=9
+x=9-w
+:y=20-h
+:wh=w*h
+:m=wh
+:gosub @init_check
+
+# setup_board
+gr
+:home
+:gosub @gen_palette
+:gosub @draw_border
+:gosub @draw_patch
+
+x=x+20
+:gosub @draw_border
+home
+:print "Available flavors:"
+:gosub @draw_color_palette
+cp=`ONE
+:ci=`ZERO
+:gosub @select_color
+
+gosub @init_hose
+:bp=`ONE
+:bi=`ZERO
+:gosub @draw_hose
+
+return
+
+@setup_goal_end
+# extra +100 line number increment allows above gosub to
+# search forward at runtime instead of from top of file.
+
+#----------
+@draw_border
+'--- Draw play area border
+# arg: x,y,w,h GR rect coords
+
+color=15
+hlin x-`ONE,x+w*2+`ONE at y-`ONE
+hlin x-`ONE,x+w*2+`ONE at y+h*2+`ONE
+vlin y-`ONE,y+h*2+`ONE at x-`ONE
+vlin y-`ONE,y+h*2+`ONE at x+w*2+`ONE
+return
+
+#----------
+@draw_color_palette
+'--- Draw color palette
+# arg: cn number of colors
+# arg: c() array of colors
+# use: i index
+
+vtab 21
+:htab 20
+
+for i=`ZERO to cn-`ONE
+:color=c(i)
+:vlin 37,38 at 20+i*2
+:print " ";i+`ONE;
+:next
+
+print
+:return
+
+#----------
+@select_color
+'--- Show selected color
+# arg: ci color index
+# keep: cp previous color index
+
+if ci=cp then return
+vtab 21
+
+:htab 21+ci*2
+:inverse
+:print ci+`ONE;
+
+:htab 21+cp*2
+:normal
+:print cp+`ONE;
+
+cp=ci
+:print
+:return
+
+#----------
+@draw_patch
+'--- Draw patch
+# arg: x,y,w,h GR rect coords
+# use: sn @shuffle
+# use: ci color index
+# use: bi bar index, @draw_bar
+# use: i index
+
+sn=w+h
+:gosub @shuffle
+
+ci=`ZERO
+for i=`ZERO to w+h-`ONE
+
+:bi=s(i)
+:gosub @draw_bar
+
+ci=ci+`ONE
+:if ci=cn then ci=`ZERO
+
+next i
+gosub @shuffle_colors
+
+return
+
+#----------
+@init_palette
+'--- Table of clashing colors
+# return: cc() table of clashing colors
+# use: i,j,k general index
+# use: s() temporary 
+
+# Data chosen by visual inspection of @test_color_clash
+# in cyanIIde and multiple view modes on AppleWin
+# severe: 5,10  7,10  7,11  7,14  10,11
+# mild: 1,3  2,4  3,5  3,9  3,10  3,11  5,7  6,14  12,14
+
+#dim cc(15*5-1)
+for i=`ZERO to 15
+:s(i)=`ZERO
+:next
+
+for k=`ONE to 14
+read i,j
+n=s(i)
+:cc(i*5+n)=j
+:s(i)=n+`ONE
+n=s(j)
+:cc(j*5+n)=i
+:s(j)=n+`ONE
+next k
+
+return
+
+#----------
+@gen_palette
+'--- Generate color palette
+# arg: cn number of colors
+# arg: cc() table of clashing colors
+# return: c() array of colors
+# use: s(),n  shuffling array
+# use: ci color index
+# use: i,j,k general index
+# use: t,a temporary value
+
+m=`ZERO
+:vtab 21
+:print "Selecting flavors..."
+
+@@palette_attempt
+m=m+`ONE
+:if m=3 then print "Taste testing for quality..."
+
+# seed the list of eligible colors
+for n=`ZERO to 13
+:s(n)=n+`ONE
+:next
+
+for ci=cn-`ONE to `ZERO step -1
+if n<=ci then @@palette_attempt
+
+# random pick
+i=rnd(`ONE)*n
+k=s(i)
+:c(ci)=k
+n=n-`ONE
+:s(i)=s(n)
+
+# eliminate clashing colors
+k=k*5
+for j=k to k+4
+a=cc(j)
+:t=(not a)*n
+:if t then j=j+5
+for i=t to n-`ONE
+if a=s(i) then n=n-`ONE
+:s(i)=s(n)
+:i=n
+next i
+next j
+
+@@next_pick
+next ci
+
+return
+
+#----------
+@shuffle
+'--- Create a shuffle 
+# arg: sn length of shuffled sequence [1..26]
+# use: i,j indices
+# use: t temporary value
+
+for i=`ZERO to sn-`ONE
+:s(i)=i
+:next
+
+for i=sn-`ONE to `ZERO step -1
+:j=rnd(`ONE)*i
+:t=s(i)
+:s(i)=s(j)
+:s(j)=t
+:next
+
+return
+
+#----------
+@shuffle_colors
+'--- Shuffle color palette
+# arg: cn number of colors
+# use: i,j indices
+# use: t temporary value
+
+for i=cn-`ONE to `ZERO step -1
+:j=rnd(`ONE)*i
+:t=c(i)
+:c(i)=c(j)
+:c(j)=t
+:next
+
+return
+
+#----------
+@init_hose
+'--- Initialize hose coordinates
+# arg: x,y,w,h GR rect coords
+# return: bx(),by()   pre-calculated plot coordinates for hose
+# use: i              loop index
+# use: x0,x1,y0,y1,t  temporary values
+
+#dim bx(33),by(33)    max (w+h)*2
+
+y1=y-2
+:y0=y1+`ONE
+:t=`ONE+x
+for i=`ZERO to (w-`ONE)*2 step 2
+bx(i)=t
+:bx(i+`ONE)=t
+by(i)=y0
+:by(i+`ONE)=y1
+t=t+2
+:next
+
+x0=x+w*2+`ONE
+:x1=x0+`ONE
+:t=`ONE+y
+for i=i to (w+h-`ONE)*2 step 2
+bx(i)=x0
+:bx(i+`ONE)=x1
+by(i)=t
+:by(i+`ONE)=t
+t=t+2
+:next
+
+return
+
+
+#-------------------------------------
+# GAME DATA
+#-------------------------------------
+@data
+
+'- clashing color pairs
+data 5,10 , 7,10 , 7,11 , 7,14 , 10,11
+data 1,3 , 2,4 , 3,5 , 3,9 , 3,10 , 3,11 , 5,7 , 6,14 , 12,14
+
