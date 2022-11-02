@@ -44,9 +44,6 @@ goto @main
 '--- Input key
 # Does not show a flashing cursor.
 #
-# arg: ts timer speed; higher is slower
-# keep: ti timer increment
-# keep: tx timer bar x-coordinate
 # use: t loop variable
 # return: ch$ string of key that was pressed
 # return: ch apple-ascii value of that key
@@ -55,17 +52,27 @@ ch$=""
 :ch=`ZERO
 
 for t=`ZERO to `INF
-ti=ti+`ONE
-:if ts and ti>=ts then ti=ti-ts
-:color=9
-:plot tx,`ZERO
-:tx=tx+`ONE
+gosub @tick_timer
 :if tx=40 then return
 
 if peek(ky)<k8 then next
 get ch$
 :ch = asc(ch$)
 :return
+
+#----------
+@tick_timer
+'--- Tick timer
+# arg: ts timer speed; higher is slower
+# keep: ti timer increment
+# keep: tx timer bar x-coordinate
+
+ti=ti+`ONE
+:if ts and ti>=ts then ti=ti-ts
+:color=9
+:plot tx,`ZERO
+:tx=tx+`ONE
+return
 
 #----------
 @draw_hose
@@ -833,11 +840,16 @@ for j=j0 to j1
 a=ro(j)+x
 :for i=a+`ONE to a+w2 step 2
 
+ti=ti+1
+:gosub @tick_timer
+:if tx=40 then return
+
 p=peek(i)
 :if p=peek(i+o) then @@diff_next
 poke(i),255
 :for t=`ONE to 200:next
 :poke(i),p
+:ti=ti+9
 if peek(ky)>=k8 then return
 
 @@diff_next
