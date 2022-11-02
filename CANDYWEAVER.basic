@@ -15,6 +15,7 @@ t4$="------------------"
 `ZERO=z
 `ONE=u
 `INF=f
+`AGAIN=ag
 `ERASE_LINE=e
 
 #----------
@@ -186,6 +187,7 @@ print " View the [D]emo"
 print " Take the [T]utorial"
 print " Play the [P]rogression challenge"
 print " Practice [S]pecific weaves"
+print " Marathon [R]andom weaves"
 print
 print " Where to? ";
 @@menu_input
@@ -200,10 +202,13 @@ if ch$="D" then gosub @demo
 if ch$="T" then gosub @tutorial
 :return
 
+if ch$="P" then gosub @challenge
+:return
+
 if ch$="S" then gosub @practice
 :return
 
-if ch$="P" then gosub @challenge
+if ch$="R" then gosub @randomized
 :return
 
 goto @@menu_input
@@ -426,14 +431,13 @@ vtab 24
 ax=ap
 return
 
-
 #----------
 @practice
 '--- Practice Menu
 # arg: t$ the string to center
 # use: s() for temporary values
 
-vtab 13
+vtab 14
 :htab `ONE
 print "  Width (2-8): ";w
 print " Height (2-9): ";h
@@ -451,7 +455,7 @@ s(0)=w
 i=`ZERO
 
 @@practice_menu_mark_cursor
-vtab 13+i
+vtab 14+i
 :htab 16
 :inverse
 :print s(i);
@@ -487,21 +491,41 @@ w=s(0)
 :ts=ta(tv)
 :gosub @seed_rnd
 
-@practice_round
-'--- Play a practice round
+@practice_loop
+gosub @play_endless
+if `AGAIN then @practice_loop
+return
+
+#----------
+@randomized
+'--- Endless randomized rounds
+
+w=int(rnd(1)*7+2)
+h=int(rnd(1)*8+2)
+cn=int(rnd(1)*8+2)
+ts=0
+
+gosub @play_endless
+if `AGAIN then @randomized
+return
+
+#----------
+@play_endless
+'--- Play one round
 gosub @setup_goal
 :gosub @draw_help
 gosub @play_game
-:if tx=-1 then return
 
 vtab 24
 :htab 24
 :print "Another round?";
-@@practice_again
+@@ask_another
 get ch$
-if ch$="Y" or ch=13 then @practice_round
-if ch$="N" or ch=27 then return
-goto @@practice_again
+if ch$="Y" or ch=13 then `AGAIN=`ONE
+:return
+if ch$="N" or ch=27 then `AGAIN=`ZERO
+:return
+goto @@ask_another
 
 
 #----------
@@ -907,7 +931,7 @@ vtab 22
 :htab `ONE
 :call(`ERASE_LINE)
 htab 24
-:print "Abandon game?"
+:print "Give up?"
 call(`ERASE_LINE)
 return
 
